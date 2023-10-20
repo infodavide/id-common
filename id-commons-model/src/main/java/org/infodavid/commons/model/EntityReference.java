@@ -6,9 +6,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * The Class EntityReference.
- * @param <K> the key type
  */
-public class EntityReference<K extends Serializable> extends AbstractObject<K> {
+public class EntityReference extends AbstractObject<Serializable> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -449021796863253704L;
@@ -18,8 +17,8 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
      * @param value the value
      * @return the default entity reference
      */
-    public static <T extends Serializable> EntityReference<T> valueOf(final NamedObject<T> value) {
-        return new EntityReference<>(value.getId(), value.getName());
+    public static EntityReference valueOf(final NamedObject<Long> value) {
+        return new EntityReference(value.getId(), value.getName());
     }
 
     /** The label. */
@@ -35,7 +34,7 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
      * Instantiates a new entity reference.
      * @param source the source
      */
-    public EntityReference(final EntityReference<K> source) {
+    public EntityReference(final EntityReference source) {
         super(source);
         label = source.label;
     }
@@ -45,7 +44,7 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
      * @param id    the identifier
      * @param label the label
      */
-    public EntityReference(final K id, final String label) {
+    public EntityReference(final Long id, final String label) {
         super(id);
         this.label = label;
     }

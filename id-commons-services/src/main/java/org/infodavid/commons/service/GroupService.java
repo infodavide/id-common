@@ -2,17 +2,18 @@ package org.infodavid.commons.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.infodavid.commons.model.EntityReference;
-import org.infodavid.commons.model.Group;
+import org.infodavid.commons.model.UserGroup;
+import org.infodavid.commons.model.query.Pagination;
+import org.infodavid.commons.model.query.Restriction;
 import org.infodavid.commons.service.exception.ServiceException;
 
 /**
  * The Class GroupService.<br>
  */
-public interface GroupService extends EntityService<Long, Group> , Saveable{
+public interface GroupService extends EntityService<Long, UserGroup> , Saveable{
 
     /**
      * Find by name.
@@ -20,7 +21,7 @@ public interface GroupService extends EntityService<Long, Group> , Saveable{
      * @return the optional
      * @throws ServiceException the service exception
      */
-    Optional<Group> findByName(String value) throws ServiceException;
+    Optional<UserGroup> findByName(String value) throws ServiceException;
 
     /**
      * Find by property.
@@ -29,7 +30,7 @@ public interface GroupService extends EntityService<Long, Group> , Saveable{
      * @return the collection
      * @throws ServiceException the service exception
      */
-    List<Group> findByProperty(String name, Object value) throws ServiceException;
+    List<UserGroup> findByProperty(String name, Object value) throws ServiceException;
 
     /**
      * Find by role.
@@ -37,7 +38,7 @@ public interface GroupService extends EntityService<Long, Group> , Saveable{
      * @return the list
      * @throws ServiceException the service exception
      */
-    List<Group> findByRole(String role) throws ServiceException;
+    List<UserGroup> findByRole(String role) throws ServiceException;
 
     /**
      * Gets the names.
@@ -45,7 +46,7 @@ public interface GroupService extends EntityService<Long, Group> , Saveable{
      * @return the names
      * @throws ServiceException the service exception
      */
-    Collection<EntityReference<Long>> getReferences(Map<String, Object> criteria) throws ServiceException;
+    Collection<EntityReference> getReferences(Pagination pagination, Restriction restriction) throws ServiceException;
 
     /**
      * Gets the supported roles.

@@ -2,11 +2,12 @@ package org.infodavid.commons.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.infodavid.commons.model.EntityReference;
 import org.infodavid.commons.model.User;
+import org.infodavid.commons.model.query.Pagination;
+import org.infodavid.commons.model.query.Restriction;
 import org.infodavid.commons.service.exception.ServiceException;
 
 /**
@@ -68,11 +69,12 @@ public interface UserService extends EntityService<Long, User>, Saveable {
 
     /**
      * Gets the names.
-     * @param criteria the criteria
+     * @param pagination  the pagination
+     * @param restriction the restriction
      * @return the names
      * @throws ServiceException the service exception
      */
-    Collection<EntityReference<Long>> getReferences(Map<String, Object> criteria) throws ServiceException;
+    Collection<EntityReference> getReferences(Pagination pagination, Restriction restriction) throws ServiceException;
 
     /**
      * Gets the supported roles.

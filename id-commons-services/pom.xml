@@ -19,9 +19,9 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>org.infodavid.commons</groupId>
-			<artifactId>id-commons-model</artifactId>
-			<version>1.0.0</version>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>id-commons-persistence</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
@@ -43,7 +43,7 @@
 						<additionalClasspathElement>${project.basedir}/config</additionalClasspathElement>
 					</additionalClasspathElements>
 					<excludes>
-						<exclude>**/*Manual.java</exclude>
+						<exclude>**/*Manual*.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

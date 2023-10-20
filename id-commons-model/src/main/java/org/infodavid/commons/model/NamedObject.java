@@ -6,18 +6,20 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * The Class NamedObject.
  * @param <K> the key type
  */
+@MappedSuperclass
 public class NamedObject<K extends Serializable> extends AbstractObject<K> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -4523886689208621786L;
 
     /** The name. */
-    @Column(name = "name", length = 48)
+    @Column(name = "name", length = 48, nullable = true)
     private String name;
 
     /**
@@ -47,14 +49,11 @@ public class NamedObject<K extends Serializable> extends AbstractObject<K> {
      * (non-javadoc)
      * @see org.infodavid.commons.model.AbstractObject#equals(java.lang.Object)
      */
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(final Object other) {
-        if (!(other instanceof NamedObject)) {
+        if (!(other instanceof final NamedObject<?> castOther)) {
             return false;
         }
-
-        final NamedObject castOther = (NamedObject)other;
 
         return new EqualsBuilder().append(name, castOther.getName()).isEquals();
     }

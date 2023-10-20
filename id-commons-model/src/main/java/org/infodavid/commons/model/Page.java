@@ -3,6 +3,7 @@ package org.infodavid.commons.model;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.infodavid.commons.model.query.Pagination;
 
 /**
  * The Class Page.
@@ -21,6 +22,36 @@ public class Page<T> {
 
     /** The total size. */
     private long totalSize;
+
+    /**
+     * Instantiates a new page.
+     */
+    public Page() {
+        // noop
+    }
+
+    /**
+     * Instantiates a new page.
+     * @param number the number
+     * @param size   the size
+     */
+    public Page(final int number, final int size) {
+        this.number = number;
+        this.size = size;
+    }
+
+    /**
+     * Instantiates a new page.
+     * @param pagination the pagination
+     */
+    public Page(final Pagination pagination) {
+        if (pagination == null) {
+            return;
+        }
+
+        number = pagination.getNumber();
+        size = pagination.getSize();
+    }
 
     /**
      * Gets the page number.
@@ -86,6 +117,10 @@ public class Page<T> {
         this.totalSize = totalSize;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     /*
      * (non-javadoc)
      * @see java.lang.Object#toString()

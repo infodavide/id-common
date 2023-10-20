@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.infodavid.commons.model.ApplicationSetting;
 import org.infodavid.commons.model.EntityReference;
-import org.infodavid.commons.model.Property;
 import org.infodavid.commons.service.exception.ServiceException;
 import org.infodavid.commons.service.listener.PropertyChangedListener;
 
@@ -19,7 +19,7 @@ import org.infodavid.commons.service.listener.PropertyChangedListener;
  * Properties of type Password expose a plain password to allow other services to use the values without knowledge of encoding.<br>
  * Normally, password are not provided when listing or getting properties, this must be handled by the presentation layer.
  */
-public interface ApplicationService extends EntityService<Long, Property>, Saveable {
+public interface ApplicationService extends EntityService<Long, ApplicationSetting>, Saveable {
 
     /**
      * Adds the listener.
@@ -41,7 +41,7 @@ public interface ApplicationService extends EntityService<Long, Property>, Savea
      * @return the collection
      * @throws ServiceException the service exception
      */
-    Optional<Property> findByName(String name) throws ServiceException;
+    Optional<ApplicationSetting> findByName(String name) throws ServiceException;
 
     /**
      * Find by scope.
@@ -49,7 +49,7 @@ public interface ApplicationService extends EntityService<Long, Property>, Savea
      * @return the collection
      * @throws ServiceException the service exception
      */
-    List<Property> findByScope(String scope) throws ServiceException;
+    List<ApplicationSetting> findByScope(String scope) throws ServiceException;
 
     /**
      * Gets the application build number.
@@ -75,7 +75,7 @@ public interface ApplicationService extends EntityService<Long, Property>, Savea
      * @return the references
      * @throws ServiceException the service exception
      */
-    Collection<EntityReference<Long>> getReferences(Map<String, Object> criteria) throws ServiceException;
+    Collection<EntityReference> getReferences(Map<String, Object> criteria) throws ServiceException;
 
     /**
      * Gets the root directory of the application.
