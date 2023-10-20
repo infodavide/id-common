@@ -1,5 +1,6 @@
 package org.infodavid.commons.model;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -11,14 +12,32 @@ public enum PropertyType {
     BOOLEAN("Boolean", Boolean.class),
     /** The date. */
     DATE("Date and time", Date.class),
+    /** The float. */
+    FLOAT("Float", Float.class),
     /** The double. */
     DOUBLE("Double", Double.class),
-    /** The enum type having its value in the type definition field. */
+    /** The enumeration type having its value in the type definition field. */
     ENUM("Enumeration", Enum.class),
+    /** The byte. */
+    BYTE("Byte", Byte.class),
+    /** The short. */
+    SHORT("Short", Short.class),
     /** The integer. */
     INTEGER("Integer", Integer.class),
+    /** The long. */
+    LONG("Long", Long.class),
+    /** The unsigned byte. */
+    UBYTE("Unsigned byte", Short.class),
+    /** The unsigned short. */
+    USHORT("Unsigned short", Integer.class),
+    /** The unsigned integer. */
+    UINTEGER("Unsigned integer", Long.class),
+    /** The unsigned long. */
+    ULONG("Unsigned long", BigInteger.class),
     /** The password. */
     PASSWORD("Password", String.class),
+    /** The character. */
+    CHARACTER("Character", Character.class),
     /** The string. */
     STRING("Text", String.class);
 

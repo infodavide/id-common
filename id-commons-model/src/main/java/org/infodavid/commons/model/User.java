@@ -4,8 +4,8 @@ import java.beans.Transient;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.processing.Generated;
 import javax.validation.constraints.Min;
@@ -14,74 +14,91 @@ import javax.validation.constraints.Size;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  * The Class User.</br>
  * Password of the user is always hashed using MD5 in the DTO and database.
  */
 @Entity
-@Table(name = "users")
-public class User extends NamedObject<Long> implements PropertiesContainer {
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "unq_users", columnNames = {
+        "name"
+}))
+@SqlResultSetMapping(name = "UserReferenceSqlResultSetMapping", classes = {
+        @ConstructorResult(targetClass = EntityReference.class, columns = {
+                @ColumnResult(name = "id"), @ColumnResult(name = "name")
+        })
+})
+public class User extends NamedObject<Long> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 6579481270902648373L;
 
+    /** The last connection date. */
+    @Column(name = "connection_date", nullable = true)
+    private Date connectionDate;
+
     /** The connections count. */
-    @Column(name = "connections_count")
-    private long connectionsCount;
+    @Column(name = "connections_count", columnDefinition = "bigint default 0")
+    private long connectionsCount = 0;
 
     /** The display name. */
-    @Column(name = "display_name", length = 96)
+    @Column(name = "display_name", length = 96, nullable = false)
     private String displayName;
 
     /** The email. */
-    @Column(name = "email", length = 255)
+    @Column(name = "email", length = 255, nullable = true)
     private String email;
 
     /** The expiration date. */
-    @Column(name = "edate")
+    @Column(name = "expiration_date", nullable = true)
     private LocalDate expirationDate;
 
     /** The groups. */
-    @OneToMany(targetEntity = Group.class, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_groups", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private List<Group> groups;
-
-    /** The last connection date. */
-    @Column(name = "lcdate")
-    private Date lastConnectionDate;
+    @ManyToMany(targetEntity = UserGroup.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "users_usergroups", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false), foreignKey = @ForeignKey(name = "fk_usersgroups_user"), inverseJoinColumns = @JoinColumn(name = "usergroup_id", referencedColumnName = "id", nullable = false), inverseForeignKey = @ForeignKey(name = "fk_usersgroups_usergroup"))
+    @MapKey(name = "name")
+    private Map<String, UserGroup> groups;
 
     /** The last IP address. */
-    @Column(name = "last_ip", length = 48)
-    private String lastIp;
+    @Column(name = "ip", length = 48, nullable = true)
+    private String ip;
 
     /** The locked. */
-    @Column(name = "lcoked")
-    private boolean locked;
+    @Column(name = "locked", columnDefinition = "boolean default false")
+    private boolean locked = false;
 
     /** The password. */
-    @Column(name = "password", length = 48)
+    @Column(name = "password", length = 48, nullable = false)
     private String password;
 
     /** The properties. */
-    @OneToMany(targetEntity = Property.class, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_properties", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private final Map<String, Property> properties;
+    @OneToMany(targetEntity = UserProperty.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_usersproperties_user"))
+    @MapKey(name = "name")
+    private Map<String, UserProperty> properties;
 
     /** The role. */
-    @Column(name = "role", length = 16)
+    @Column(name = "role", length = 16, nullable = true)
     private String role;
 
     /**
      * The Constructor.
      */
     public User() {
-        properties = new HashMap<>();
     }
 
     /**
@@ -90,7 +107,6 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
      */
     public User(final Long id) {
         super(id);
-        properties = new HashMap<>();
     }
 
     /**
@@ -103,12 +119,27 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
         displayName = source.displayName;
         email = source.email;
         expirationDate = source.expirationDate;
-        lastConnectionDate = source.lastConnectionDate;
-        lastIp = source.lastIp;
+        connectionDate = source.connectionDate;
+        ip = source.ip;
         locked = source.locked;
         password = source.password;
-        properties = new HashMap<>(source.properties);
         role = source.role;
+
+        if (source.groups != null) {
+            groups = new HashMap<>();
+
+            for (final Entry<String, UserGroup> entry : source.groups.entrySet()) {
+                groups.put(entry.getKey(), new UserGroup(entry.getValue()));
+            }
+        }
+
+        if (source.properties != null) {
+            properties = new HashMap<>();
+
+            for (final Entry<String, UserProperty> entry : source.properties.entrySet()) {
+                properties.put(entry.getKey(), new UserProperty(entry.getValue()));
+            }
+        }
     }
 
     /*
@@ -138,6 +169,15 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
         }
 
         return true;
+    }
+
+    /**
+     * Gets the last connection date.
+     * @return the date
+     */
+    @Generated("Set by the service")
+    public Date getConnectionDate() {
+        return connectionDate;
     }
 
     /**
@@ -182,7 +222,7 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
      * Gets the groups.
      * @return the groups
      */
-    public List<Group> getGroups() {
+    public Map<String, UserGroup> getGroups() {
         return groups;
     }
 
@@ -197,22 +237,13 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
     }
 
     /**
-     * Gets the last connection date.
-     * @return the last connection date
-     */
-    @Generated("Set by the service")
-    public Date getLastConnectionDate() {
-        return lastConnectionDate;
-    }
-
-    /**
      * Gets the last IP address.
-     * @return the last IP address
+     * @return the IP address
      */
     @Size(min = 0, max = Constants.LAST_IP_MAX_LENGTH)
     @Generated("Set by the service")
-    public String getLastIp() {
-        return lastIp;
+    public String getIp() {
+        return ip;
     }
 
     /*
@@ -236,12 +267,11 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
         return password;
     }
 
-    /*
-     * (non-javadoc)
-     * @see org.infodavid.commons.model.PropertiesContainer#getProperties()
+    /**
+     * Gets the properties.
+     * @return the properties
      */
-    @Override
-    public Map<String, Property> getProperties() {
+    public Map<String, UserProperty> getProperties() {
         return properties;
     }
 
@@ -285,6 +315,17 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
     }
 
     /**
+     * On insert.
+     */
+    @SuppressWarnings("unused")
+    @PrePersist
+    private void onInsert() {
+        connectionDate = null;
+        connectionsCount = 0;
+        ip = null;
+    }
+
+    /**
      * Sets the connections count.
      * @param value the new connections count
      */
@@ -320,24 +361,24 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
      * Sets the groups.
      * @param groups the new groups
      */
-    public void setGroups(final List<Group> groups) {
+    public void setGroups(final Map<String, UserGroup> groups) {
         this.groups = groups;
     }
 
     /**
-     * Sets the last connection date.
-     * @param value the new last connection date
+     * Sets the last IP address.
+     * @param value the new IP address
      */
-    public void setLastConnectionDate(final Date value) {
-        lastConnectionDate = value;
+    public void setIp(final String value) {
+        ip = value;
     }
 
     /**
-     * Sets the last IP address.
-     * @param value the new last IP address
+     * Sets the last connection date.
+     * @param value the new date
      */
-    public void setLastIp(final String value) {
-        lastIp = value;
+    public void setLastConnectionDate(final Date value) {
+        connectionDate = value;
     }
 
     /**
@@ -354,6 +395,14 @@ public class User extends NamedObject<Long> implements PropertiesContainer {
      */
     public void setPassword(final String value) {
         password = value;
+    }
+
+    /**
+     * Sets the properties.
+     * @param properties the properties
+     */
+    public void setProperties(final Map<String, UserProperty> properties) {
+        this.properties = properties;
     }
 
     /**

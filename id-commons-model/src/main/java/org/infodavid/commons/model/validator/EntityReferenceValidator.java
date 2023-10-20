@@ -8,7 +8,6 @@ import org.infodavid.commons.model.EntityReference;
 /**
  * The Class EntityReferenceValidator.
  */
-@SuppressWarnings("rawtypes")
 public class EntityReferenceValidator implements ConstraintValidator<ValidEntityReference,EntityReference> {
 
     /*

@@ -2,6 +2,7 @@ package org.infodavid.commons.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -9,61 +10,77 @@ import javax.validation.constraints.Size;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
+import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 /**
- * The Class User.</br>
- * Password of the user is always hashed using MD5 in the DTO and database.
+ * The Class UserGroup.<
  */
 @Entity
-@Table(name = "users")
-public class Group extends NamedObject<Long> implements PropertiesContainer {
+@Table(name = "user_groups", uniqueConstraints = @UniqueConstraint(name = "unq_usergroups", columnNames = "name"))
+@SqlResultSetMapping(name = "UserGroupReferenceSqlResultSetMapping", classes = {
+        @ConstructorResult(targetClass = EntityReference.class, columns = {
+                @ColumnResult(name = "id"), @ColumnResult(name = "name")
+        })
+})
+public class UserGroup extends NamedObject<Long> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 6579481270902648373L;
 
     /** The display name. */
-    @Column(name = "display_name", length = 96)
+    @Column(name = "display_name", length = 96, nullable = false)
     private String displayName;
 
     /** The properties. */
-    @OneToMany(targetEntity = Property.class, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_properties", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private final Map<String, Property> properties;
+    @OneToMany(targetEntity = UserGroupProperty.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "usergroup_id", foreignKey = @ForeignKey(name = "fk_usergroupsproperties_usergroup"))
+    @MapKey(name = "name")
+    private Map<String, UserGroupProperty> properties;
 
     /** The role. */
-    @Column(name = "role", length = 16)
+    @Column(name = "role", length = 16, nullable = true)
     private String role;
 
     /**
      * The Constructor.
      */
-    public Group() {
-        properties = new HashMap<>();
+    public UserGroup() {
     }
 
     /**
      * Instantiates a new group.
      * @param id the identifier
      */
-    public Group(final Long id) {
+    public UserGroup(final Long id) {
         super(id);
-        properties = new HashMap<>();
     }
 
     /**
      * Instantiates a new group.
      * @param source the source
      */
-    public Group(final Group source) {
+    public UserGroup(final UserGroup source) {
         super(source);
         displayName = source.displayName;
-        properties = new HashMap<>(source.properties);
         role = source.role;
+
+        if (source.properties != null) {
+            properties = new HashMap<>();
+
+            for (final Entry<String, UserGroupProperty> entry : source.properties.entrySet()) {
+                properties.put(entry.getKey(), new UserGroupProperty(entry.getValue()));
+            }
+        }
     }
 
     /*
@@ -80,7 +97,7 @@ public class Group extends NamedObject<Long> implements PropertiesContainer {
             return false;
         }
 
-        if (!(obj instanceof final Group other)) {
+        if (!(obj instanceof final UserGroup other)) {
             return false;
         }
 
@@ -126,12 +143,11 @@ public class Group extends NamedObject<Long> implements PropertiesContainer {
         return super.getName();
     }
 
-    /*
-     * (non-javadoc)
-     * @see org.infodavid.commons.model.PropertiesContainer#getProperties()
+    /**
+     * Gets the properties.
+     * @return the properties
      */
-    @Override
-    public Map<String, Property> getProperties() {
+    public Map<String, UserGroupProperty> getProperties() {
         return properties;
     }
 
@@ -160,6 +176,14 @@ public class Group extends NamedObject<Long> implements PropertiesContainer {
      */
     public void setDisplayName(final String value) {
         displayName = value;
+    }
+
+    /**
+     * Sets the properties.
+     * @param properties the properties
+     */
+    public void setProperties(final Map<String, UserGroupProperty> properties) {
+        this.properties = properties;
     }
 
     /**

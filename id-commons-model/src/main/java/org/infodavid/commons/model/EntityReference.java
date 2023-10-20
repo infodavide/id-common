@@ -6,21 +6,23 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * The Class EntityReference.
- * @param <K> the key type
  */
-public class EntityReference<K extends Serializable> extends AbstractObject<K> {
+public class EntityReference implements Serializable {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -449021796863253704L;
 
     /**
      * Returns the value associated to the given entity.
-     * @param value the value
+     * @param entity the entity
      * @return the default entity reference
      */
-    public static <T extends Serializable> EntityReference<T> valueOf(final NamedObject<T> value) {
-        return new EntityReference<>(value.getId(), value.getName());
+    public static EntityReference valueOf(final NamedObject<? extends Serializable> entity) {
+        return new EntityReference(entity.getId(), entity.getName());
     }
+
+    /** The identifier. */
+    private Serializable id;
 
     /** The label. */
     private String label;
@@ -35,8 +37,8 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
      * Instantiates a new entity reference.
      * @param source the source
      */
-    public EntityReference(final EntityReference<K> source) {
-        super(source);
+    public EntityReference(final EntityReference source) {
+        id = source.id;
         label = source.label;
     }
 
@@ -45,8 +47,8 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
      * @param id    the identifier
      * @param label the label
      */
-    public EntityReference(final K id, final String label) {
-        super(id);
+    public EntityReference(final Serializable id, final String label) {
+        this.id = id;
         this.label = label;
     }
 
@@ -72,6 +74,14 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
     }
 
     /**
+     * Gets the identifier.
+     * @return the identifier
+     */
+    public Serializable getId() {
+        return id;
+    }
+
+    /**
      * Gets the label.
      * @return the label
      */
@@ -86,6 +96,10 @@ public class EntityReference<K extends Serializable> extends AbstractObject<K> {
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    public void setId(final Serializable id) {
+        this.id = id;
     }
 
     /**

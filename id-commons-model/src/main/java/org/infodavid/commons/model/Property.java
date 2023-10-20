@@ -2,62 +2,83 @@ package org.infodavid.commons.model;
 
 import java.util.Date;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * The Class Property.
  */
+@MappedSuperclass
+@AttributeOverrides(value = {
+        @AttributeOverride(name = "name", column = @Column(name = "name", length = 48, nullable = false))
+})
 public class Property extends NamedObject<Long> implements Comparable<Property> { // NOSONAR equals and hashcode from super class
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 4650115076573283055L;
 
     /** The default value. */
-    @Column(name = "default_value", length = 1024)
+    @Column(name = "default_value", length = 1024, nullable = true)
     private String defaultValue;
 
+    /** The deletable flag. */
+    @Column(name = "deletable", columnDefinition = "boolean default true")
+    private boolean deletable = true;
+
+    /** The editable flag. */
+    @Column(name = "editable", columnDefinition = "boolean default true")
+    private boolean editable = true;
+
     /** The label. */
-    @Column(name = "label", length = 128)
+    @Column(name = "label", length = 128, nullable = true)
     private String label;
 
     /** The maximum. */
-    @Column(name = "maxi")
+    @Column(name = "maxi", nullable = true)
     private Double maximum;
 
     /** The minimum. */
-    @Column(name = "mini")
+    @Column(name = "mini", nullable = true)
     private Double minimum;
 
-    /** The read only. */
-    @Column(name = "ro")
-    private boolean readOnly;
-
     /** The scope. */
-    @Column(name = "scope", length = 48)
+    @Column(name = "scope", length = 48, nullable = true)
     private String scope;
 
     /** The type. */
-    @Column(name = "data_type", length = 48)
+    @Column(name = "data_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private PropertyType type;
 
     /** The type definition. */
-    @Column(name = "data_type_def", length = 255)
+    @Column(name = "data_type_def", length = 255, nullable = true)
     private String typeDefinition;
 
     /** The value. */
-    @Column(name = "data", length = 1024)
+    @Column(name = "data", length = 1024, nullable = true)
     private String value;
 
     /**
      * Instantiates a new property.
      */
     public Property() {
+    }
+
+    /**
+     * The Constructor.
+     * @param id the identifier
+     */
+    public Property(final Long id) {
+        super(id);
     }
 
     /**
@@ -71,9 +92,96 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
         scope = source.scope;
         value = source.value;
         label = source.label;
+        editable = source.editable;
+        deletable = source.deletable;
         maximum = source.maximum;
         minimum = source.minimum;
         defaultValue = source.defaultValue;
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final boolean value) {
+        this(name, PropertyType.BOOLEAN);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final byte value) {
+        this(name, PropertyType.BYTE);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final double value) {
+        this(name, PropertyType.DOUBLE);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final float value) {
+        this(name, PropertyType.FLOAT);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final int value) {
+        this(name, PropertyType.INTEGER);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final long value) {
+        this(name, PropertyType.LONG);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final Number value) {
+        this(name, PropertyType.LONG);
+
+        if (value instanceof Byte) {
+            setType(PropertyType.BYTE);
+        } else if (value instanceof Short) {
+            setType(PropertyType.SHORT);
+        } else if (value instanceof Integer) {
+            setType(PropertyType.INTEGER);
+        } else if (value instanceof Long) {
+            setType(PropertyType.LONG);
+        } else if (value instanceof Float) {
+            setType(PropertyType.FLOAT);
+        } else if (value instanceof Double) {
+            setType(PropertyType.DOUBLE);
+        }
+
+        setValue(value);
     }
 
     /**
@@ -86,22 +194,45 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
         setType(type);
     }
 
-    /*
-     * (non-javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param type  the type
+     * @param value the value
      */
+    public Property(final String name, final PropertyType type, final String value) {
+        this(name, type);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final short value) {
+        this(name, PropertyType.SHORT);
+        setValue(value);
+    }
+
+    /**
+     * Instantiates a new property.
+     * @param name  the name
+     * @param value the value
+     */
+    public Property(final String name, final String value) {
+        this(name, PropertyType.STRING);
+        setValue(value);
+    }
+
     /**
      * Compare to.
-     * @param o the o
-     * @return the int
-     */
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     * @param o the other object to compare
+     * @return the value
      */
     @Override
     public int compareTo(final Property o) { // NOSONAR
-        return getId().compareTo(o.getId());
+        return getName().compareTo(o.getName());
     }
 
     /**
@@ -119,20 +250,6 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
      */
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * Gets the id.
-     * @return the id
-     */
-    /*
-     * (non-javadoc)
-     * @see org.infodavid.commons.model.AbstractObject#getId()
-     */
-    @Override
-    @Min(1)
-    public Long getId() {
-        return super.getId();
     }
 
     /**
@@ -158,21 +275,6 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
      */
     public Double getMinimum() {
         return minimum;
-    }
-
-    /**
-     * Gets the name.
-     * @return the name
-     */
-    /*
-     * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#getName()
-     */
-    @Override
-    @NotNull
-    @Size(min = 1, max = Constants.PROPERTY_NAME_MAX_LENGTH)
-    public String getName() {
-        return super.getName();
     }
 
     /**
@@ -242,7 +344,7 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
      * @return the value
      */
     public Date getValue(final Date defaultValue) {
-        return StringUtils.isNumeric(value) ? defaultValue : new Date(Long.valueOf(value));
+        return StringUtils.isNumeric(value) ? defaultValue : new Date(Long.parseLong(value));
     }
 
     /**
@@ -291,11 +393,19 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
     }
 
     /**
-     * Checks if is read only.
-     * @return the readOnly
+     * Checks if is deletable.
+     * @return true, if is deletable
      */
-    public boolean isReadOnly() {
-        return readOnly;
+    public boolean isDeletable() {
+        return deletable;
+    }
+
+    /**
+     * Checks if is editable.
+     * @return the editable
+     */
+    public boolean isEditable() {
+        return editable;
     }
 
     /**
@@ -304,6 +414,22 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
      */
     public void setDefaultValue(final String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    /**
+     * Sets the deletable.
+     * @param deletable the new deletable
+     */
+    public void setDeletable(final boolean deletable) {
+        this.deletable = deletable;
+    }
+
+    /**
+     * Sets the editable flag.
+     * @param editable the editable flag to set
+     */
+    public void setEditable(final boolean editable) {
+        this.editable = editable;
     }
 
     /**
@@ -328,14 +454,6 @@ public class Property extends NamedObject<Long> implements Comparable<Property> 
      */
     public void setMinimum(final Double minimum) {
         this.minimum = minimum;
-    }
-
-    /**
-     * Sets the read only.
-     * @param readOnly the readOnly to set
-     */
-    public void setReadOnly(final boolean readOnly) {
-        this.readOnly = readOnly;
     }
 
     /**

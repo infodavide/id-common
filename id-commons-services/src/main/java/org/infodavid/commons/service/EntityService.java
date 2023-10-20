@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import org.infodavid.commons.model.Page;
 import org.infodavid.commons.model.PersistentObject;
+import org.infodavid.commons.model.query.Pagination;
+import org.infodavid.commons.model.query.Restriction;
 import org.infodavid.commons.service.exception.ServiceException;
 
 /**
@@ -15,13 +17,13 @@ import org.infodavid.commons.service.exception.ServiceException;
  * @param <K> the key type
  * @param <T> the generic type
  */
-public interface EntityService<K extends Serializable,T extends PersistentObject<K>> extends Validator<T> {
+public interface EntityService<K extends Serializable, T extends PersistentObject<K>> extends Validator<T> {
 
     /**
      * Adds the value.
      * @param value the value
      * @return the added entity
-     * @throws ServiceException the service exception
+     * @throws ServiceException       the service exception
      * @throws IllegalAccessException the illegal access exception
      */
     T add(T value) throws ServiceException, IllegalAccessException;
@@ -32,20 +34,20 @@ public interface EntityService<K extends Serializable,T extends PersistentObject
      * @return the count
      * @throws ServiceException the service exception
      */
-    long count(Map<String,Object> criteria) throws ServiceException;
+    long count(Map<String, Object> criteria) throws ServiceException;
 
     /**
      * Removes the entities using the given criteria.
      * @param criteria the map of criteria
-     * @throws ServiceException the service exception
+     * @throws ServiceException       the service exception
      * @throws IllegalAccessException the illegal access exception
      */
-    void delete(Map<String,Object> criteria) throws ServiceException, IllegalAccessException;
+    void delete(Map<String, Object> criteria) throws ServiceException, IllegalAccessException;
 
     /**
      * Removes the entity using its identifier.
      * @param id the identifier
-     * @throws ServiceException the service exception
+     * @throws ServiceException       the service exception
      * @throws IllegalAccessException the illegal access exception
      */
     void deleteById(K id) throws ServiceException, IllegalAccessException;
@@ -60,14 +62,12 @@ public interface EntityService<K extends Serializable,T extends PersistentObject
 
     /**
      * Find using criteria, pagination and sort.<br>
-     * @param criteria the map of criteria
-     * @param pageNumber the page number (use a positive value or a negative one to get the last page)
-     * @param pageSize the page size (use a negative value to not use pagination)
-     * @param sortBy the sort by statements (for example: 'id asc' or 'id desc')
+     * @param pagination  the pagination parameters
+     * @param restriction the restriction
      * @return page the page describing page properties and the resulting collection of entities
      * @throws ServiceException the service exception
      */
-    Page<T> find(Map<String,Object> criteria, int pageNumber, int pageSize, Collection<String> sortBy) throws ServiceException;
+    Page<T> find(Pagination pagination, Restriction restriction) throws ServiceException;
 
     /**
      * Find one.
@@ -81,7 +81,7 @@ public interface EntityService<K extends Serializable,T extends PersistentObject
      * Update.
      * @param values the values
      * @return the list of updated entities
-     * @throws ServiceException the service exception
+     * @throws ServiceException       the service exception
      * @throws IllegalAccessException the illegal access exception
      */
     List<T> update(Collection<T> values) throws ServiceException, IllegalAccessException;
@@ -90,7 +90,7 @@ public interface EntityService<K extends Serializable,T extends PersistentObject
      * Update.
      * @param value the value
      * @return the updated entity
-     * @throws ServiceException the service exception
+     * @throws ServiceException       the service exception
      * @throws IllegalAccessException the illegal access exception
      */
     T update(T value) throws ServiceException, IllegalAccessException;

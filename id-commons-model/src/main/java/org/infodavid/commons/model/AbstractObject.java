@@ -13,19 +13,24 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
 
 /**
  * The Class AbstractObject.
  * @param <K> the key type
  */
 @ModelObject
+@MappedSuperclass
 public abstract class AbstractObject<K extends Serializable> implements PersistentObject<K> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 7292704857170542767L;
 
     /** The creation date. */
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", columnDefinition = "datetime default NOW()", updatable = false, nullable = false)
     private Date creationDate;
 
     /** The identifier. */
@@ -35,7 +40,8 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
     private K id;
 
     /** The modification date. */
-    @Column(name = "modification_date")
+    @Column(name = "modification_date", columnDefinition = "datetime default NOW()", nullable = false)
+    @Version
     private Date modificationDate;
 
     /**
@@ -62,11 +68,15 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         this.id = id;
     }
 
+    /**
+     * Equals.
+     * @param obj the object
+     * @return true, if successful
+     */
     /*
      * (non-javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -77,11 +87,9 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
             return false;
         }
 
-        if (!(obj instanceof PersistentObject)) {
+        if (!(obj instanceof final PersistentObject<?> other)) {
             return false;
         }
-
-        final PersistentObject other = (PersistentObject) obj;
 
         return Objects.equals(id, other.getId());
     }
@@ -96,6 +104,10 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         return creationDate;
     }
 
+    /**
+     * Gets the id.
+     * @return the id
+     */
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.model.PersistentObject#getId()
@@ -105,6 +117,10 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         return id;
     }
 
+    /**
+     * Gets the modification date.
+     * @return the modification date
+     */
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.model.PersistentObject#getModificationDate()
@@ -115,6 +131,10 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         return modificationDate;
     }
 
+    /**
+     * Hash code.
+     * @return the int
+     */
     /*
      * (non-javadoc)
      * @see java.lang.Object#hashCode()
@@ -124,6 +144,29 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         return Objects.hash(id);
     }
 
+    /**
+     * On insert.
+     */
+    @SuppressWarnings("unused")
+    @PrePersist
+    private void onInsert() {
+        creationDate = new Date();
+        modificationDate = creationDate;
+    }
+
+    /**
+     * On update.
+     */
+    @SuppressWarnings("unused")
+    @PreUpdate
+    private void onUpdate() {
+        modificationDate = new Date();
+    }
+
+    /**
+     * Sets the creation date.
+     * @param value the new creation date
+     */
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.model.PersistentObject#setCreationDate(java.util.Date)
@@ -137,6 +180,10 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         }
     }
 
+    /**
+     * Sets the id.
+     * @param value the new id
+     */
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.model.PersistentObject#setId(java.io.Serializable)
@@ -146,6 +193,10 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         id = value;
     }
 
+    /**
+     * Sets the modification date.
+     * @param value the new modification date
+     */
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.model.PersistentObject#setModificationDate(java.util.Date)
@@ -155,6 +206,10 @@ public abstract class AbstractObject<K extends Serializable> implements Persiste
         modificationDate = value;
     }
 
+    /**
+     * To string.
+     * @return the string
+     */
     /*
      * (non-javadoc)
      * @see java.lang.Object#toString()

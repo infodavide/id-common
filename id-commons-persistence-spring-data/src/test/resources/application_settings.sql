@@ -1,0 +1,21 @@
+DELETE FROM application_settings;
+INSERT INTO application_settings (deletable, editable, name, creation_date, modification_date, data_type, data, scope, data_type_def, label, default_value, mini, maxi) VALUES
+  (false, false, 'schema.version', NOW(), NOW(), 'STRING', '1.0.0', NULL, NULL, 'Schema version', '1.0.0', NULL, NULL),
+  (true, true, 'Param1', NOW(), NOW(), 'STRING', 'Donnée1', NULL, NULL, 'Param 1', NULL, NULL, NULL),
+  (true, true, 'Param2', NOW(), NOW(), 'STRING', 'Donnée2', NULL, NULL, 'Param 2', NULL, NULL, NULL),
+  (true, true, 'Param3', NOW(), NOW(), 'STRING', 'Donnée2', 'Scope1', NULL, 'Param 3', NULL, NULL, NULL),
+  (true, true, 'Enum1', NOW(), NOW(), 'ENUM', 'INFO', NULL, 'INFO|DEBUG', 'Enumération 1', NULL, NULL, NULL),
+  (true, true, 'Password1', NOW(), NOW(), 'PASSWORD', 'secret', NULL, NULL, 'Mot de passe 1', NULL, NULL, NULL),
+  (true, true, 'Character1', NOW(), NOW(), 'CHARACTER', 'A', NULL, NULL, 'Param 3', NULL, NULL, NULL),
+  (true, true, 'Boolean1', NOW(), NOW(), 'BOOLEAN', 'true', NULL, NULL, 'Booléen 1', NULL, NULL, NULL),
+  (true, true, 'Byte1', NOW(), NOW(), 'BYTE', '-127', NULL, NULL, 'Octet 1', NULL, -16.0, 16.0),
+  (true, true, 'UByte1', NOW(), NOW(), 'UBYTE', '255', NULL, NULL, 'Octet non signé 1', NULL, 0.0, 32.0),
+  (true, true, 'Short1', NOW(), NOW(), 'SHORT', '-1024', NULL, NULL, 'Entier court 1', NULL, -32.0, 32.0),
+  (true, true, 'UShort1', NOW(), NOW(), 'USHORT', '2048', NULL, NULL, 'Entier court non signé 1', NULL, 0.0, 64.0),
+  (true, true, 'Integer1', NOW(), NOW(), 'INTEGER', '-42000', NULL, NULL, 'Entier 1', NULL, -64.0, 64.0),
+  (true, true, 'UInteger1', NOW(), NOW(), 'UINTEGER', '80000', NULL, NULL, 'Entier non signé 1', NULL, 0.0, 128.0),
+  (true, true, 'Long1', NOW(), NOW(), 'LONG', '1697637685997', NULL, NULL, 'Entier long 1', NULL, -256.0, 256.0),
+  (true, true, 'ULong1', NOW(), NOW(), 'ULONG', '1697637685997', NULL, NULL, 'Entier long non signé 1', NULL, 0.0, 512.0),
+  (true, true, 'Date1', NOW(), NOW(), 'DATE', '1697637685997', NULL, NULL, 'Date 1', NULL, NULL, NULL),
+  (true, true, 'Float1', NOW(), NOW(), 'FLOAT', '1.0', NULL, NULL, 'Flotant 1', NULL, -1024.0, 1024.0),
+  (true, true, 'Double1', NOW(), NOW(), 'DOUBLE', '3.14159265359', NULL, NULL, 'Double 1', NULL, -2048.0, 2048.0);

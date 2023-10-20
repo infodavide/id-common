@@ -31,7 +31,11 @@
 	</properties>
 	<modules>
 		<module>swt</module>
+		<module>id-commons-test</module>
 		<module>id-commons-model</module>
+		<module>id-commons-persistence</module>
+		<module>id-commons-persistence-mocks</module>
+		<module>id-commons-persistence-spring-data</module>
 		<module>id-commons-services</module>
 	</modules>
 	<dependencyManagement>
@@ -741,8 +745,7 @@
 					<configuration>
 						<argLine>-Dfile.encoding=UTF-8</argLine>
 						<excludes>
-							<exclude>**/Manual*.java</exclude>
-							<exclude>**/*Manual.java</exclude>
+							<exclude>**/*Manual*.java</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
