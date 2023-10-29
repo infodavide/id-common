@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.infodavid.commons.model.Page;
-import org.infodavid.commons.model.PersistentObject;
+import org.infodavid.commons.model.ModelObject;
 import org.infodavid.commons.model.query.Pagination;
 import org.infodavid.commons.model.query.Restriction;
 
@@ -16,7 +16,7 @@ import jakarta.persistence.PersistenceException;
  * @param <K> the key type
  * @param <T> the generic type
  */
-public interface DefaultDao<K extends Serializable, T extends PersistentObject<K>> {
+public interface DefaultDao<K extends Serializable, T extends ModelObject<K>> {
 
     /**
      * Count.

@@ -27,12 +27,12 @@ import jakarta.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "user_groups", uniqueConstraints = @UniqueConstraint(name = "unq_usergroups", columnNames = "name"))
-@SqlResultSetMapping(name = "UserGroupReferenceSqlResultSetMapping", classes = {
-        @ConstructorResult(targetClass = EntityReference.class, columns = {
+@SqlResultSetMapping(name = "UserGroupLinkSqlResultSetMapping", classes = {
+        @ConstructorResult(targetClass = ObjectLink.class, columns = {
                 @ColumnResult(name = "id"), @ColumnResult(name = "name")
         })
 })
-public class UserGroup extends NamedObject<Long> {
+public class UserGroup extends NamedModelObject<Long> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 6579481270902648373L;
@@ -85,7 +85,7 @@ public class UserGroup extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#equals(java.lang.Object)
+     * @see org.infodavid.commons.model.NamedModelObject#equals(java.lang.Object)
      */
     @Override
     public boolean equals(final Object obj) {
@@ -124,7 +124,7 @@ public class UserGroup extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.AbstractObject#getId()
+     * @see org.infodavid.commons.model.AbstractModelObject#getId()
      */
     @Override
     @Min(1)
@@ -134,7 +134,7 @@ public class UserGroup extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#getName()
+     * @see org.infodavid.commons.model.NamedModelObject#getName()
      */
     @Override
     @NotNull
@@ -161,7 +161,7 @@ public class UserGroup extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#hashCode()
+     * @see org.infodavid.commons.model.NamedModelObject#hashCode()
      */
     @Override
     public int hashCode() {

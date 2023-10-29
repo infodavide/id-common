@@ -7,6 +7,13 @@ import org.apache.commons.lang3.SystemUtils;
  */
 public class RunOnlyOnWindowsCondition implements IgnoreCondition {
 
+    /**
+     * Instantiates a new condition.
+     */
+    public RunOnlyOnWindowsCondition() {
+        // noop
+    }
+
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.test.rules.IgnoreCondition#isSatisfied()

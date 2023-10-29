@@ -2,7 +2,7 @@ package org.infodavid.commons.persistence.dao;
 
 import java.util.List;
 
-import org.infodavid.commons.model.EntityReference;
+import org.infodavid.commons.model.ObjectLink;
 import org.infodavid.commons.model.Page;
 import org.infodavid.commons.model.User;
 import org.infodavid.commons.model.query.Pagination;
@@ -57,11 +57,11 @@ public interface UserDao extends DefaultDao<Long, User> {
     List<User> findByRole(String value) throws PersistenceException;
 
     /**
-     * Find references.
+     * Find links.
      * @param pagination  the pagination parameters
      * @param restriction the restriction
-     * @return the collection of references
+     * @return the collection of links
      * @throws PersistenceException the persistence exception
      */
-    Page<EntityReference> findReferences(Pagination pagination, Restriction restriction) throws PersistenceException;
+    Page<ObjectLink> findLinks(Pagination pagination, Restriction restriction) throws PersistenceException;
 }

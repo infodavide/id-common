@@ -19,16 +19,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.infodavid.commons.test.rules.ConditionalIgnoreRule;
-import org.infodavid.commons.test.rules.TimeoutRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.mockito.internal.progress.ThreadSafeMockingProgress;
 import org.mockito.invocation.Invocation;
@@ -38,11 +31,10 @@ import org.slf4j.LoggerFactory;
 /**
  * The Class TestCase.
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SuppressWarnings({
-    "unchecked",
-    "rawtypes"
+        "unchecked", "rawtypes", "static-method"
 })
+@Timeout(value = 20, unit = TimeUnit.SECONDS)
 public class TestCase {
 
     static {
@@ -124,36 +116,6 @@ public class TestCase {
         }
     }
 
-    /** The conditional ignore rule. */
-    @Rule
-    public ConditionalIgnoreRule conditionalIgnoreRule = new ConditionalIgnoreRule();
-
-    /** The timeout rule. Default to 20 seconds, can be overridden using the @Test annotation and its timeout attribute. */
-    @Rule
-    public TimeoutRule timeoutRule = new TimeoutRule(timeout, TimeUnit.SECONDS);
-
-    /** The watcher. */
-    @Rule
-    public TestRule watcher = new TestWatcher() {
-        private long start = -1;
-
-        @Override
-        protected void failed(final Throwable e, final Description description) {
-            System.err.println("==> Test failed: " + description.getMethodName()); // NOSONAR For testing
-        }
-
-        @Override
-        protected void starting(final Description description) {
-            System.out.println("==> Starting test: " +  description.getClassName() + '.' + description.getMethodName()); // NOSONAR For testing
-            start = System.currentTimeMillis();
-        }
-
-        @Override
-        protected void succeeded(final Description description) {
-            System.out.println("==> Test succeeded (in " + (System.currentTimeMillis() - start) + "ms: " + description.getMethodName()); // NOSONAR For testing
-        }
-    };
-
     /** The mocks. */
     private final Collection mocks = new LinkedHashSet<>();
 
@@ -161,10 +123,17 @@ public class TestCase {
     protected CountDownLatch countDownLatch = new CountDownLatch(1);
 
     /**
+     * Instantiates a new test case.
+     */
+    public TestCase() {
+        // noop
+    }
+
+    /**
      * Sets the up.
      * @throws Exception the exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception { // NOSONAR See subclasses
         reset();
     }
@@ -173,7 +142,7 @@ public class TestCase {
      * Tear down.
      * @throws Exception the exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception { // NOSONAR See subclasses
         mocks.clear();
     }
@@ -228,9 +197,8 @@ public class TestCase {
     /**
      * Verify no more interactions.
      * @param mocks the mocks
-     * @throws Exception the exception
      */
-    protected void verifyNoMoreInteractions(final Object... mocks) throws Exception {
+    protected void verifyNoMoreInteractions(final Object... mocks) {
         final List<Invocation> invocations = new ArrayList<>();
         final List<Invocation> unverifiedInvocations = new ArrayList<>();
 

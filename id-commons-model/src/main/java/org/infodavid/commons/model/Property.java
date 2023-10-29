@@ -21,7 +21,7 @@ import jakarta.persistence.MappedSuperclass;
 @AttributeOverrides(value = {
         @AttributeOverride(name = "name", column = @Column(name = "name", length = 48, nullable = false))
 })
-public class Property extends NamedObject<Long> implements Comparable<Property> { // NOSONAR equals and hashcode from super class
+public class Property extends NamedModelObject<Long> implements Comparable<Property> { // NOSONAR equals and hashcode from super class
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 4650115076573283055L;

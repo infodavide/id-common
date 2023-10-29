@@ -1,38 +1,17 @@
 package org.infodavid.commons.test.rules;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Optional;
 
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExecutionCondition;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * The Class ConditionalIgnoreRule.
  */
-public class ConditionalIgnoreRule implements MethodRule {
-
-    /**
-     * Gets the ignore condition.
-     * @param method   the method
-     * @param instance the instance
-     * @return the ignore condition
-     */
-    private static IgnoreCondition getIgnoreContition(final FrameworkMethod method, final Object instance) {
-        return newCondition(method.getAnnotation(ConditionalIgnore.class), instance);
-    }
-
-    /**
-     * Checks for conditional ignore annotation.
-     * @param method the method
-     * @return true, if successful
-     */
-    private static boolean hasConditionalIgnoreAnnotation(final FrameworkMethod method) {
-        if (method == null) {
-            return false;
-        }
-
-        return method.getAnnotation(ConditionalIgnore.class) != null;
-    }
+public class ConditionalIgnoreRule implements ExecutionCondition {
 
     /**
      * New condition.
@@ -66,36 +45,52 @@ public class ConditionalIgnoreRule implements MethodRule {
 
             return cond.getConstructor().newInstance();
         } catch (final RuntimeException e) {
-            e.printStackTrace(); //NOSONAR For testing
+            e.printStackTrace(); // NOSONAR For testing
 
             throw e;
         } catch (final Exception e) {
-            e.printStackTrace(); //NOSONAR For testing
+            e.printStackTrace(); // NOSONAR For testing
 
-            throw new RuntimeException(e); //NOSONAR For testing
+            throw new RuntimeException(e); // NOSONAR For testing
         }
     }
 
+    /**
+     * Instantiates a new rule.
+     */
+    public ConditionalIgnoreRule() {
+        // noop
+    }
+
     /*
-     * (non-javadoc)
-     * @see org.junit.rules.MethodRule#apply(org.junit.runners.model.Statement, org.junit.runners.model.FrameworkMethod, java.lang.Object)
+     * (non-Javadoc)
+     * @see org.junit.jupiter.api.extension.ExecutionCondition#evaluateExecutionCondition(org.junit.jupiter.api.extension.ExtensionContext)
      */
     @Override
-    public Statement apply(final Statement base, final FrameworkMethod method, final Object target) {
-        final Statement result = base;
+    public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
+        final Optional<Method> method = context.getTestMethod();
 
-        if (hasConditionalIgnoreAnnotation(method)) {
-            final IgnoreCondition condition = getIgnoreContition(method, target);
-
-            if (condition == null) {
-                return result;
-            }
-
-            if (!condition.isSatisfied()) {
-                return new IgnoreStatement(condition);
-            }
+        if (method.isEmpty()) {
+            return ConditionEvaluationResult.enabled("No method found, moving on...");
         }
 
-        return result;
+        final ConditionalIgnore annotation = method.get().getAnnotation(ConditionalIgnore.class);
+        final Optional<Object> instance = context.getTestInstance();
+
+        if (annotation == null || instance.isEmpty()) {
+            return ConditionEvaluationResult.enabled("No instance or no condition annotation found, moving on...");
+        }
+
+        final IgnoreCondition condition = newCondition(annotation, instance.get());
+
+        if (condition == null) {
+            return ConditionEvaluationResult.enabled("No condition on annotation, moving on...");
+        }
+
+        if (!condition.isSatisfied()) {
+            return ConditionEvaluationResult.disabled("Condition not satisfied");
+        }
+
+        return ConditionEvaluationResult.disabled("Condition not satisfied, moving on...");
     }
 }

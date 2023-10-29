@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.infodavid.commons</groupId>
 	<artifactId>id-commons-persistence-mock</artifactId>
-	<name>Persistence with Spring data</name>
+	<name>Persistence with mocks</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

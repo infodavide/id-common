@@ -7,6 +7,13 @@ import java.io.IOException;
  */
 public class TcpListenerAdapter implements TcpListener {
 
+    /**
+     * Instantiates a new adapter.
+     */
+    public TcpListenerAdapter() {
+        // noop
+    }
+
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.test.net.TcpListener#handleException(java.lang.Throwable)
