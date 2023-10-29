@@ -1,6 +1,5 @@
 package org.infodavid.commons.model;
 
-import java.beans.Transient;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 
 /**
@@ -37,12 +37,12 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "unq_users", columnNames = {
         "name"
 }))
-@SqlResultSetMapping(name = "UserReferenceSqlResultSetMapping", classes = {
-        @ConstructorResult(targetClass = EntityReference.class, columns = {
+@SqlResultSetMapping(name = "UserLinkSqlResultSetMapping", classes = {
+        @ConstructorResult(targetClass = ObjectLink.class, columns = {
                 @ColumnResult(name = "id"), @ColumnResult(name = "name")
         })
 })
-public class User extends NamedObject<Long> {
+public class User extends NamedModelObject<Long> {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 6579481270902648373L;
@@ -125,6 +125,14 @@ public class User extends NamedObject<Long> {
         password = source.password;
         role = source.role;
 
+        if (source.groups != null) {
+            groups = new HashMap<>();
+
+            for (final Entry<String, UserGroup> entry : source.groups.entrySet()) {
+                groups.put(entry.getKey(), new UserGroup(entry.getValue()));
+            }
+        }
+
         if (source.properties != null) {
             properties = new HashMap<>();
 
@@ -136,7 +144,7 @@ public class User extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#equals(java.lang.Object)
+     * @see org.infodavid.commons.model.NamedModelObject#equals(java.lang.Object)
      */
     @Override
     public boolean equals(final Object obj) {
@@ -220,7 +228,7 @@ public class User extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.AbstractObject#getId()
+     * @see org.infodavid.commons.model.AbstractModelObject#getId()
      */
     @Override
     @Min(1)
@@ -240,7 +248,7 @@ public class User extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#getName()
+     * @see org.infodavid.commons.model.NamedModelObject#getName()
      */
     @Override
     @NotNull
@@ -277,7 +285,7 @@ public class User extends NamedObject<Long> {
 
     /*
      * (non-javadoc)
-     * @see org.infodavid.commons.model.NamedObject#hashCode()
+     * @see org.infodavid.commons.model.NamedModelObject#hashCode()
      */
     @Override
     public int hashCode() {

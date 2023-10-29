@@ -7,6 +7,13 @@ import org.apache.commons.lang3.SystemUtils;
  */
 public class RunOnlyOnMacCondition implements IgnoreCondition {
 
+    /**
+     * Instantiates a new condition.
+     */
+    public RunOnlyOnMacCondition() {
+        // noop
+    }
+
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.test.rules.IgnoreCondition#isSatisfied()

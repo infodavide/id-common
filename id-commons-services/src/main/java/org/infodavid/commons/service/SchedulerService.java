@@ -12,6 +12,9 @@ import org.infodavid.commons.service.listener.PropertyChangedListener;
  */
 public interface SchedulerService extends PropertyChangedListener {
 
+    /** The Constant SCHEDULER_THREADS_PROPERTY. */
+    public static final String SCHEDULER_THREADS_PROPERTY = "scheduler.threads";
+
     /**
      * Schedule.
      * @param command the command

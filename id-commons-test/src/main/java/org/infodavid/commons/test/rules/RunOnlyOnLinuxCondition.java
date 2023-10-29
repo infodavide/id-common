@@ -7,6 +7,13 @@ import org.apache.commons.lang3.SystemUtils;
  */
 public class RunOnlyOnLinuxCondition implements IgnoreCondition {
 
+    /**
+     * Instantiates a new condition.
+     */
+    public RunOnlyOnLinuxCondition() {
+        // noop
+    }
+
     /*
      * (non-javadoc)
      * @see org.infodavid.commons.test.rules.IgnoreCondition#isSatisfied()

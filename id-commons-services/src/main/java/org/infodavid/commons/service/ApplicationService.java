@@ -1,13 +1,11 @@
 package org.infodavid.commons.service;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.infodavid.commons.model.ApplicationSetting;
-import org.infodavid.commons.model.EntityReference;
 import org.infodavid.commons.service.exception.ServiceException;
 import org.infodavid.commons.service.listener.PropertyChangedListener;
 
@@ -33,7 +31,7 @@ public interface ApplicationService extends EntityService<Long, ApplicationSetti
      * @throws ServiceException       the service exception
      * @throws IllegalAccessException the illegal access exception
      */
-    void deleteByName(String name) throws ServiceException, IllegalAccessException;
+    CompletableFuture<?> deleteByName(String name) throws ServiceException, IllegalAccessException;
 
     /**
      * Find by name.
@@ -41,7 +39,7 @@ public interface ApplicationService extends EntityService<Long, ApplicationSetti
      * @return the collection
      * @throws ServiceException the service exception
      */
-    Optional<ApplicationSetting> findByName(String name) throws ServiceException;
+    CompletableFuture<ApplicationSetting> findByName(String name) throws ServiceException;
 
     /**
      * Find by scope.
@@ -49,7 +47,7 @@ public interface ApplicationService extends EntityService<Long, ApplicationSetti
      * @return the collection
      * @throws ServiceException the service exception
      */
-    List<ApplicationSetting> findByScope(String scope) throws ServiceException;
+    CompletableFuture<List<ApplicationSetting>> findByScope(String scope) throws ServiceException;
 
     /**
      * Gets the application build number.
@@ -61,21 +59,13 @@ public interface ApplicationService extends EntityService<Long, ApplicationSetti
      * Gets the information.
      * @return the information
      */
-    Map<String, String[]> getInformation();
+    CompletableFuture<Map<String, String[]>> getInformation();
 
     /**
      * Gets the application name.
      * @return the name
      */
     String getName();
-
-    /**
-     * Gets the references.
-     * @param criteria the criteria
-     * @return the references
-     * @throws ServiceException the service exception
-     */
-    Collection<EntityReference> getReferences(Map<String, Object> criteria) throws ServiceException;
 
     /**
      * Gets the root directory of the application.
@@ -87,7 +77,7 @@ public interface ApplicationService extends EntityService<Long, ApplicationSetti
      * Gets the up time in seconds.
      * @return the up time
      */
-    long getUpTime();
+    CompletableFuture<Long> getUpTime();
 
     /**
      * Gets the application version.
@@ -95,6 +85,13 @@ public interface ApplicationService extends EntityService<Long, ApplicationSetti
      */
 
     String getVersion();
+
+    /**
+     * Gets the schema version.
+     * @return the version
+     */
+
+    String getShcemaVersion();
 
     /**
      * Removes the listener.

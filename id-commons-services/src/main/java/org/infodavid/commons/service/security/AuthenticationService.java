@@ -15,6 +15,21 @@ import org.infodavid.commons.service.exception.ServiceException;
  */
 public interface AuthenticationService {
 
+    /** The Constant HTTP_AUTHORIZATION_EXPIRATION_HEADER. */
+    public static final String HTTP_AUTHORIZATION_EXPIRATION_HEADER = "X-Authorization-Expiration";
+
+    /** The Constant HTTP_AUTHORIZATION_HEADER_TOKEN_PREFIX. */
+    public static final String HTTP_AUTHORIZATION_HEADER_TOKEN_PREFIX = "Token ";
+
+    /** The Constant HTTP_AUTHORIZATION_RESPONSE_HEADER. */
+    public static final String HTTP_AUTHORIZATION_RESPONSE_HEADER = "X-Authorization";
+
+    /** The Constant HTTP_EXPIRED_AUTHORIZATION_HEADER. */
+    public static final String HTTP_EXPIRED_AUTHORIZATION_HEADER = "X-Expired-Authorization";
+
+    /** The Constant HTTP_SESSION_INACTIVITY_TIMEOUT_HEADER. */
+    public static final String HTTP_SESSION_INACTIVITY_TIMEOUT_HEADER = "X-Session-Inactivity-Timeout";
+
     /**
      * Adds the listener.
      * @param listener the listener
@@ -32,14 +47,6 @@ public interface AuthenticationService {
      * @throws LoginException the login exception
      */
     AuthenticationToken authenticate(String login, String password, Map<String,String> properties) throws IllegalAccessException, ServiceException, LoginException;
-
-    /**
-     * Checks for permission based on role.
-     * @param role the role
-     * @throws IllegalAccessException the illegal access exception
-     * @throws ServiceException the service exception
-     */
-    void checkRole(String role) throws IllegalAccessException, ServiceException;
 
     /**
      * Gets the currently authenticated users.
@@ -86,7 +93,7 @@ public interface AuthenticationService {
      * @return the user
      * @throws ServiceException the service exception
      */
-    User getUser() throws ServiceException;
+    User getCurrentUser() throws ServiceException;
 
     /**
      * Gets the user.
@@ -104,7 +111,7 @@ public interface AuthenticationService {
     Long getUserId(String token) throws IOException;
 
     /**
-     * Checks for permission.
+     * Checks for permission of the current user.
      * @param role the role
      * @return true, if successful
      * @throws ServiceException the service exception

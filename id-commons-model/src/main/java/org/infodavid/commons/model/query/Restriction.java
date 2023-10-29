@@ -19,8 +19,28 @@ public class Restriction implements Serializable {
      * @param value    the value
      * @return the restriction
      */
-    public static Restriction with(final String field, final RestrictionOperator operator, final String value) {
+    public static Restriction with(final String field, final RestrictionOperator operator, final Serializable value) {
         return new Restriction(field, operator, value);
+    }
+
+    /**
+     * With.
+     * @param field    the field
+     * @param operator the operator
+     * @return the restriction
+     */
+    public static Restriction with(final String field, final RestrictionOperator operator) {
+        return new Restriction(field, operator, null);
+    }
+
+    /**
+     * With.
+     * @param field    the field
+     * @param operator the operator
+     * @return the restriction
+     */
+    public static Restriction with(final String field, final String operator) {
+        return new Restriction(field, operator, null);
     }
 
     /**
@@ -30,7 +50,7 @@ public class Restriction implements Serializable {
      * @param value    the value
      * @return the restriction
      */
-    public static Restriction with(final String field, final String operator, final String value) {
+    public static Restriction with(final String field, final String operator, final Serializable value) {
         return new Restriction(field, operator, value);
     }
 

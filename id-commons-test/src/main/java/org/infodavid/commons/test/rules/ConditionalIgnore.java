@@ -1,17 +1,15 @@
 package org.infodavid.commons.test.rules;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * The Interface ConditionalIgnore.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({
-        ElementType.METHOD
-})
+@ExtendWith(ConditionalIgnoreRule.class)
 public @interface ConditionalIgnore {
 
     /**

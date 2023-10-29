@@ -2,6 +2,7 @@ package org.infodavid.commons.service;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CompletableFuture;
 
 import org.infodavid.commons.service.exception.ServiceException;
 
@@ -17,12 +18,12 @@ public interface Saveable {
      * @param format the format
      * @throws ServiceException the service exception
      */
-    void backup(OutputStream out, String format) throws ServiceException;
+    CompletableFuture<?> backup(OutputStream out, String format) throws ServiceException;
 
     /**
      * Restore.
      * @param in the input
      * @throws ServiceException the service exception
      */
-    void restore(InputStream in) throws ServiceException;
+    CompletableFuture<?> restore(InputStream in) throws ServiceException;
 }

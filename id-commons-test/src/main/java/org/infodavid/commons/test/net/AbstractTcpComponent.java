@@ -23,6 +23,13 @@ public abstract class AbstractTcpComponent implements Closeable {
      */
     protected class HandlerImpl extends IoHandlerAdapter {
 
+        /**
+         * Instantiates a new handler.
+         */
+        public HandlerImpl() {
+            // noop
+        }
+
         /*
          * (non-javadoc)
          * @see org.apache.mina.core.service.IoHandlerAdapter#exceptionCaught(org.apache.mina.core.session.IoSession, java.lang.Throwable)

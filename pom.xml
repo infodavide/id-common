@@ -16,7 +16,6 @@
 		<hibernate.version>6.3.1.Final</hibernate.version>
 		<jackson.version>2.15.3</jackson.version>
 		<jna.version>5.13.0</jna.version>
-		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.10.0</junit-jupiter.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<proguard.version>7.4.0</proguard.version>
@@ -31,9 +30,20 @@
 	</properties>
 	<modules>
 		<module>swt</module>
+		<module>id-commons-utils</module>
+		<module>id-commons-checksum-utils</module>
+		<module>id-commons-concurrency-utils</module>
+		<module>id-commons-io-utils</module>
+		<module>id-commons-jdbc-utils</module>
+		<module>id-commons-jdk-utils</module>
+		<module>id-commons-net-utils</module>
+		<module>id-commons-swing-utils</module>
+		<module>id-commons-system-utils</module>
+		<module>id-commons-xml-utils</module>
 		<module>id-commons-test</module>
 		<module>id-commons-model</module>
 		<module>id-commons-persistence</module>
+		<module>id-commons-persistence-mocks</module>
 		<module>id-commons-persistence-spring-data</module>
 		<module>id-commons-services</module>
 	</modules>
@@ -564,12 +574,6 @@
 			</dependency>
 			<!-- Testing -->
 			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>${junit.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.hamcrest</groupId>
 				<artifactId>hamcrest-core</artifactId>
 				<version>2.2</version>
@@ -655,6 +659,7 @@
 						<showWarnings>true</showWarnings>
 						<showDeprecation>true</showDeprecation>
 						<useIncrementalCompilation>false</useIncrementalCompilation>
+						<createMissingPackageInfoClass>true</createMissingPackageInfoClass>				
 					</configuration>
 				</plugin>
 				<plugin>
@@ -676,10 +681,8 @@
 					<version>8.4.0</version>
 					<configuration>
 						<failBuildOnCVSS>8</failBuildOnCVSS>
-						<cveUrl20Modified>
-							https://nvd.nist.gov/feeds/xml/cve/2.0/nvdcve-2.0-Modified.xml.gz</cveUrl20Modified>
-						<cveUrl20Base>
-							https://nvd.nist.gov/feeds/xml/cve/2.0/nvdcve-2.0-%d.xml.gz</cveUrl20Base>
+						<cveUrl20Modified>https://nvd.nist.gov/feeds/xml/cve/2.0/nvdcve-2.0-Modified.xml.gz</cveUrl20Modified>
+						<cveUrl20Base>https://nvd.nist.gov/feeds/xml/cve/2.0/nvdcve-2.0-%d.xml.gz</cveUrl20Base>
 					</configuration>
 					<executions>
 						<execution>
@@ -746,6 +749,12 @@
 						<excludes>
 							<exclude>**/*Manual*.java</exclude>
 						</excludes>
+						<argLine>--illegal-access=permit</argLine>
+						<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+						<argLine>--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED</argLine>
+						<argLine>--add-exports org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED</argLine>
+    					<argLine>--add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED</argLine>
+						<argLine>-Dillegal-access=permit</argLine>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -801,7 +810,9 @@
 					<artifactId>javahome-resolver-maven-plugin</artifactId>
 					<version>1.0.2</version>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This
+				plugin's configuration is used to store Eclipse m2e settings only. It has no
+				influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -825,8 +836,7 @@
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>com.diamondq.maven</groupId>
-										<artifactId>
-											javahome-resolver-maven-plugin</artifactId>
+										<artifactId>javahome-resolver-maven-plugin</artifactId>
 										<versionRange>[1.0.0,)</versionRange>
 										<goals>
 											<goal>resolve</goal>
@@ -904,8 +914,7 @@
 								</goals>
 								<configuration>
 									<fileSets>
-										<fileSet
-											implementation="org.apache.maven.shared.model.fileset.FileSet">
+										<fileSet implementation="org.apache.maven.shared.model.fileset.FileSet">
 											<directory>${project.basedir}</directory>
 											<includes>
 												<include>**/*.exec</include>

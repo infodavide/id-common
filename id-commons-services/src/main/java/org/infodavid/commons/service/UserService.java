@@ -2,9 +2,9 @@ package org.infodavid.commons.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-import org.infodavid.commons.model.EntityReference;
+import org.infodavid.commons.model.ObjectLink;
 import org.infodavid.commons.model.User;
 import org.infodavid.commons.model.query.Pagination;
 import org.infodavid.commons.model.query.Restriction;
@@ -19,13 +19,16 @@ import org.infodavid.commons.service.exception.ServiceException;
  */
 public interface UserService extends EntityService<Long, User>, Saveable {
 
+    /** The Constant IP_ADDRESS_PROPERTY. */
+    public static final String IP_ADDRESS_PROPERTY = "ip-address";
+
     /**
      * Find by email.
      * @param value the value
      * @return the optional
      * @throws ServiceException the service exception
      */
-    Optional<User> findByEmail(String value) throws ServiceException;
+    CompletableFuture<User> findByEmail(String value) throws ServiceException;
 
     /**
      * Find by name.
@@ -33,7 +36,7 @@ public interface UserService extends EntityService<Long, User>, Saveable {
      * @return the optional
      * @throws ServiceException the service exception
      */
-    Optional<User> findByName(String value) throws ServiceException;
+    CompletableFuture<User> findByName(String value) throws ServiceException;
 
     /**
      * Find by property.
@@ -42,7 +45,7 @@ public interface UserService extends EntityService<Long, User>, Saveable {
      * @return the collection
      * @throws ServiceException the service exception
      */
-    List<User> findByProperty(String name, Object value) throws ServiceException;
+    CompletableFuture<List<User>> findByProperty(String name, Object value) throws ServiceException;
 
     /**
      * Find by role.
@@ -50,7 +53,7 @@ public interface UserService extends EntityService<Long, User>, Saveable {
      * @return the list
      * @throws ServiceException the service exception
      */
-    List<User> findByRole(String role) throws ServiceException;
+    CompletableFuture<List<User>> findByRole(String role) throws ServiceException;
 
     /**
      * Find by status.
@@ -58,14 +61,14 @@ public interface UserService extends EntityService<Long, User>, Saveable {
      * @return the list
      * @throws ServiceException the service exception
      */
-    List<User> findByStatus(boolean connected) throws ServiceException;
+    CompletableFuture<List<User>> findByStatus(boolean connected) throws ServiceException;
 
     /**
      * Generate a new password if user has an email, stores it and sends its by email to the user.
      * @param id the identifier
      * @throws ServiceException the service exception
      */
-    void generate(Long id) throws ServiceException;
+    CompletableFuture<?> generatePassword(Long id) throws ServiceException;
 
     /**
      * Gets the names.
@@ -74,7 +77,7 @@ public interface UserService extends EntityService<Long, User>, Saveable {
      * @return the names
      * @throws ServiceException the service exception
      */
-    Collection<EntityReference> getReferences(Pagination pagination, Restriction restriction) throws ServiceException;
+    CompletableFuture<Collection<ObjectLink>> getNames(Pagination pagination, Restriction restriction) throws ServiceException;
 
     /**
      * Gets the supported roles.
@@ -87,5 +90,5 @@ public interface UserService extends EntityService<Long, User>, Saveable {
      * @param name the name
      * @return true, if user is connected or false if not connected or not found
      */
-    boolean isConnected(String name);
+    CompletableFuture<Boolean> isConnected(String name);
 }

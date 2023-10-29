@@ -2,7 +2,7 @@ package org.infodavid.commons.service.exception;
 
 import javax.validation.ValidationException;
 
-import org.infodavid.commons.model.PersistentObject;
+import org.infodavid.commons.model.ModelObject;
 
 /**
  * The Class EntityExistsException.
@@ -13,21 +13,21 @@ public class EntityExistsException extends ValidationException {
     private static final long serialVersionUID = -8377739488098386511L;
 
     /** The submitted. */
-    private final PersistentObject<?> submitted;
+    private final ModelObject<?> submitted;
 
     /** The existing. */
-    private final PersistentObject<?> existing;
+    private final ModelObject<?> existing;
 
     /**
      * Instantiates a new exception.
-     * @param message the message
+     * @param message   the message
      * @param submitted the submitted
-     * @param existing the existing
+     * @param existing  the existing
      */
-    public EntityExistsException(final String message, final PersistentObject<?> submitted, final PersistentObject<?> existing) {
+    public EntityExistsException(final String message, final ModelObject<?> submitted, final ModelObject<?> existing) {
         super(message);
-        this.submitted=submitted;
-        this.existing=existing;
+        this.submitted = submitted;
+        this.existing = existing;
     }
 
     /**
@@ -35,7 +35,7 @@ public class EntityExistsException extends ValidationException {
      * @return the submitted
      */
     @SuppressWarnings("rawtypes")
-    public PersistentObject getSubmitted() {
+    public ModelObject getSubmitted() {
         return submitted;
     }
 
@@ -44,7 +44,7 @@ public class EntityExistsException extends ValidationException {
      * @return the existing
      */
     @SuppressWarnings("rawtypes")
-    public PersistentObject getExisting() {
+    public ModelObject getExisting() {
         return existing;
     }
 }

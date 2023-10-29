@@ -15,6 +15,13 @@ public class MacAdressValidator implements ConstraintValidator<ValidMacAddress,S
     /** The pattern. */
     private final Pattern pattern = Pattern.compile("^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$");
 
+    /**
+     * Instantiates a new validator.
+     */
+    public MacAdressValidator() {
+        // noop
+    }
+
     /*
      * (non-javadoc)
      * @see javax.validation.ConstraintValidator#initialize(java.lang.annotation.Annotation)

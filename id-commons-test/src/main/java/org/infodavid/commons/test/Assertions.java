@@ -1,10 +1,8 @@
 package org.infodavid.commons.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
-
-import org.junit.Assert;
+import org.junit.jupiter.api.function.Executable;
 
 /**
  * The Class Assertions.
@@ -13,13 +11,34 @@ import org.junit.Assert;
 public class Assertions {
 
     /**
+     * Assert equals.
+     * @param message  the message
+     * @param expected the expected
+     * @param actual   the actual
+     */
+    public static void assertEquals(final String message, final Object expected, final Object actual) {
+        org.junit.jupiter.api.Assertions.assertEquals(expected, actual, message);
+    }
+
+    /**
+     * Assert throws.
+     * @param <T>          the generic type
+     * @param message      the message
+     * @param expectedType the expected type
+     * @param executable   the executable
+     * @return the t
+     */
+    public static <T extends Throwable> T assertThrows(final String message, final Class<T> expectedType, final Executable executable) {
+        return org.junit.jupiter.api.Assertions.assertThrows(expectedType, executable, message);
+    }
+
+    /**
      * Assert equals with normalized new lines.
      * @param message  the message
      * @param expected the expected
      * @param actual   the actual
-     * @throws IOException Signals that an I/O exception has occurred.
      */
-    public static void assertEqualsWithNormalizedNewLines(final String message, final String expected, final String actual) throws IOException {
+    public static void assertEqualsWithNormalizedNewLines(final String message, final String expected, final String actual) {
         assertEquals(message, expected.replace("\r\n", "\n"), actual.replace("\r\n", "\n"));
     }
 
@@ -31,7 +50,7 @@ public class Assertions {
      */
     public static void assertGreaterThan(final String message, final byte expected, final byte actual) {
         if (expected > actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -43,7 +62,7 @@ public class Assertions {
      */
     public static void assertGreaterThan(final String message, final int expected, final int actual) {
         if (expected > actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -55,7 +74,7 @@ public class Assertions {
      */
     public static void assertGreaterThan(final String message, final long expected, final long actual) {
         if (expected > actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -67,7 +86,7 @@ public class Assertions {
      */
     public static void assertGreaterThan(final String message, final short expected, final short actual) {
         if (expected > actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -79,7 +98,7 @@ public class Assertions {
      */
     public static void assertLowerThan(final String message, final byte expected, final byte actual) {
         if (expected < actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -91,7 +110,7 @@ public class Assertions {
      */
     public static void assertLowerThan(final String message, final int expected, final int actual) {
         if (expected < actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -103,7 +122,7 @@ public class Assertions {
      */
     public static void assertLowerThan(final String message, final long expected, final long actual) {
         if (expected < actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
@@ -115,7 +134,7 @@ public class Assertions {
      */
     public static void assertLowerThan(final String message, final short expected, final short actual) {
         if (expected < actual) {
-            Assert.fail(format(message, expected, actual));
+            fail(format(message, expected, actual));
         }
     }
 
