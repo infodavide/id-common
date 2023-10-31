@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -21,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.mockito.internal.progress.ThreadSafeMockingProgress;
@@ -135,7 +138,24 @@ public class TestCase {
      */
     @BeforeEach
     public void setUp() throws Exception { // NOSONAR See subclasses
+        LOGGER.debug("Command line: {}", ProcessHandle.current().info().commandLine());
         reset();
+    }
+
+    /**
+     * Sets the up.
+     * @throws Exception the exception
+     */
+    @BeforeEach
+    public void setUp(final TestInfo info, final TestReporter reporter) throws Exception { // NOSONAR See subclasses
+        final Optional<Class<?>> testClass = info.getTestClass();
+
+        if (testClass.isPresent()) {
+            final String message = "Running test: " + testClass.get().getName() + '.' + info.getDisplayName();
+            reporter.publishEntry(message);
+            LOGGER.info(message);
+            System.out.println(message); // NOSONAR For test
+        }
     }
 
     /**

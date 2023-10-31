@@ -10,6 +10,7 @@ import org.infodavid.commons.model.query.Restriction;
 import org.infodavid.commons.persistence.dao.UsersGroupDao;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.PersistenceException;
@@ -17,7 +18,7 @@ import jakarta.persistence.PersistenceException;
 /**
  * The Interface UsersGroupRepository.
  */
-@org.springframework.stereotype.Repository
+@Repository
 public interface UsersGroupRepository extends UsersGroupDao, QueryCallbackRepository<UserGroup, Long> {
 
     /*

@@ -286,7 +286,7 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.hibernate</groupId>
+				<groupId>org.hibernate.orm</groupId>
 				<artifactId>hibernate-core</artifactId>
 				<version>${hibernate.version}</version>
 			</dependency>
@@ -592,9 +592,35 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-params</artifactId>
+				<version>${junit-jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-commons</artifactId>
+				<version>1.10.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-engine</artifactId>
+				<version>1.10.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-runner</artifactId>
+				<version>1.10.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-launcher</artifactId>
+				<version>1.10.0</version>
+			</dependency>
+			<dependency>
 				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>5.6.0</version>
+				<artifactId>mockito-junit-jupiter</artifactId>
+				<version>4.8.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mock-server</groupId>
@@ -644,8 +670,7 @@
 					<version>3.4.0</version>
 					<configuration>
 						<failOnMissingWebXml>false</failOnMissingWebXml>
-						<outputFileNameMapping>
-							@{groupId}@-@{artifactId}@-@{version}@.@{extension}@</outputFileNameMapping>
+						<outputFileNameMapping>@{groupId}@-@{artifactId}@-@{version}@.@{extension}@</outputFileNameMapping>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -653,13 +678,13 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.11.0</version>
 					<configuration>
-						<source>17</source>
-						<target>17</target>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
 						<compilerArgument>-Xlint:all</compilerArgument>
 						<showWarnings>true</showWarnings>
 						<showDeprecation>true</showDeprecation>
 						<useIncrementalCompilation>false</useIncrementalCompilation>
-						<createMissingPackageInfoClass>true</createMissingPackageInfoClass>				
+						<createMissingPackageInfoClass>true</createMissingPackageInfoClass>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -743,18 +768,25 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.1.2</version>
+					<version>3.2.1</version>
 					<configuration>
 						<argLine>-Dfile.encoding=UTF-8</argLine>
 						<excludes>
 							<exclude>**/*Manual*.java</exclude>
 						</excludes>
-						<argLine>--illegal-access=permit</argLine>
-						<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
-						<argLine>--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED</argLine>
-						<argLine>--add-exports org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED</argLine>
-    					<argLine>--add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED</argLine>
-						<argLine>-Dillegal-access=permit</argLine>
+						<printSummary>true</printSummary>
+						<trimStackTrace>false</trimStackTrace>
+						<!--If used, classloader will be affected and resources cannot be loaded using a relative path <forkCount>0</forkCount>-->
+						<properties>
+							<configurationParameters>
+								junit.jupiter.extensions.autodetection.enabled = true
+								junit.jupiter.testinstance.lifecycle.default = per_class
+								junit.jupiter.execution.parallel.enabled = true
+								junit.platform.launcher.interceptors.enabled = true
+								junit.platform.output.capture.stdout = true
+								junit.platform.output.capture.stderr = true
+							</configurationParameters>
+						</properties>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -956,6 +988,7 @@
 							</execution>
 						</executions>
 						<configuration>
+							<classesdirectory>${project.build.outputDirectory}</classesdirectory>
 							<includes>
 								<include>**/*Integration*.java</include>
 							</includes>

@@ -1,0 +1,4 @@
+org.infodavid.commons.checksum.MD5ChecksumGenerator
+org.infodavid.commons.checksum.SHA256ChecksumGenerator
+org.infodavid.commons.checksum.SHA384ChecksumGenerator
+org.infodavid.commons.checksum.SHA512ChecksumGenerator

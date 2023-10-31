@@ -32,7 +32,7 @@ public abstract class AbstractChecksumGeneratorTest extends TestCase {
      * @param expectedChecksum the expected checksum
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
-    public AbstractChecksumGeneratorTest(final String algorithm, final String expectedChecksum) throws NoSuchAlgorithmException {
+    protected AbstractChecksumGeneratorTest(final String algorithm, final String expectedChecksum) throws NoSuchAlgorithmException {
         this.algorithm = algorithm;
         this.expectedChecksum = expectedChecksum;
         generator = ChecksumGeneratorRegistry.getInstance().getGenerator(algorithm);

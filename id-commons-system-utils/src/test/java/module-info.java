@@ -1,3 +1,6 @@
+import org.infodavid.commons.system.CommandRunner;
+import org.infodavid.commons.system.DefaultCommandExecutor;
+
 open module org.infodavid.commons.system {
     exports org.infodavid.commons.system;
 
@@ -8,4 +11,6 @@ open module org.infodavid.commons.system {
     requires transitive org.apache.commons.lang3;
     requires transitive org.slf4j;
     requires transitive org.infodavid.commons.test;
+    provides CommandRunner with DefaultCommandExecutor;
+    uses CommandRunner;
 }

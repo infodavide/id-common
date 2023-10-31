@@ -5,7 +5,7 @@ open module org.infodavid.commons.net {
     exports org.infodavid.commons.net.ssl;
 
     requires transitive com.github.benmanes.caffeine;
-    requires transitive java.rmi;
+    requires java.rmi;
     requires transitive org.apache.commons.lang3;
     requires transitive org.apache.commons.net;
     requires transitive org.infodavid.commons.concurrency;
