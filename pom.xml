@@ -17,12 +17,13 @@
 		<jackson.version>2.15.3</jackson.version>
 		<jna.version>5.13.0</jna.version>
 		<junit-jupiter.version>5.10.0</junit-jupiter.version>
+		<junit-platform.version>1.10.0</junit-platform.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<proguard.version>7.4.0</proguard.version>
 		<querydsl.version>5.0.0</querydsl.version>
 		<selenium.version>4.14.1</selenium.version>
 		<servlet-api.version>4.0.1</servlet-api.version>
-		<slf4j.version>2.0.9</slf4j.version>
+		<slf4j.version>2.0.7</slf4j.version>
 		<springboot.version>3.1.4</springboot.version>
 		<springframework.version>6.0.13</springframework.version>
 		<spring-security.version>6.1.14</spring-security.version>
@@ -600,22 +601,27 @@
 			<dependency>
 				<groupId>org.junit.platform</groupId>
 				<artifactId>junit-platform-commons</artifactId>
-				<version>1.10.0</version>
+				<version>${junit-platform.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.platform</groupId>
 				<artifactId>junit-platform-engine</artifactId>
-				<version>1.10.0</version>
+				<version>${junit-platform.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.platform</groupId>
 				<artifactId>junit-platform-runner</artifactId>
-				<version>1.10.0</version>
-			</dependency>
+				<version>${junit-platform.version}</version>
+			</dependency>			
+	        <dependency>
+	            <groupId>org.junit.platform</groupId>
+	            <artifactId>junit-platform-console-standalone</artifactId>
+	            <version>${junit-platform.version}</version>
+	        </dependency>
 			<dependency>
 				<groupId>org.junit.platform</groupId>
 				<artifactId>junit-platform-launcher</artifactId>
-				<version>1.10.0</version>
+				<version>${junit-platform.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
@@ -655,6 +661,16 @@
 		</dependencies>
 	</dependencyManagement>
 	<build>
+		<resources>
+	    	<resource>
+	       		<directory>src/main/resources</directory>
+	     	</resource>
+	   </resources>
+	   <testResources>
+		   <testResource>
+			   <directory>src/test/resources</directory>
+		   </testResource>
+	   </testResources>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -769,13 +785,30 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.2.1</version>
+					<dependencies>
+				        <dependency>
+				            <groupId>me.fabriciorby</groupId>
+				            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+				            <version>1.2.1</version>
+				        </dependency>
+				        <dependency>
+							<groupId>ch.qos.logback</groupId>
+			        		<artifactId>logback-classic</artifactId>
+			        		<version>1.4.11</version>
+						</dependency>
+				    </dependencies>
 					<configuration>
 						<argLine>-Dfile.encoding=UTF-8</argLine>
 						<excludes>
 							<exclude>**/*Manual*.java</exclude>
 						</excludes>
+						<additionalClasspathElements>
+							<additionalClasspathElement>${project.build.directory}/test-classes</additionalClasspathElement>
+						</additionalClasspathElements>
 						<printSummary>true</printSummary>
 						<trimStackTrace>false</trimStackTrace>
+						<redirectTestOutputToFile>true</redirectTestOutputToFile>
+						<useManifestOnlyJar>false</useManifestOnlyJar>
 						<!--If used, classloader will be affected and resources cannot be loaded using a relative path <forkCount>0</forkCount>-->
 						<properties>
 							<configurationParameters>
@@ -787,8 +820,70 @@
 								junit.platform.output.capture.stderr = true
 							</configurationParameters>
 						</properties>
+						<statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+		                    <disable>false</disable>
+		                    <version>3.0</version>
+		                    <usePhrasedFileName>false</usePhrasedFileName>
+		                    <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
+		                    <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
+		                    <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+		                </statelessTestsetReporter>
+						<consoleOutputReporter>
+				            <disable>true</disable>
+				        </consoleOutputReporter>
+				        <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
 					</configuration>
 				</plugin>
+				 <plugin>
+		            <groupId>com.amashchenko.maven.plugin</groupId>
+		            <artifactId>gitflow-maven-plugin</artifactId>
+		            <version>1.20.0</version>
+		            <configuration>
+		                 <gitFlowConfig>
+					     	<productionBranch>master</productionBranch>
+					        <developmentBranch>dev</developmentBranch>
+					        <featureBranchPrefix>feature/</featureBranchPrefix>
+					        <releaseBranchPrefix>release/</releaseBranchPrefix>
+					        <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
+					        <supportBranchPrefix>support/</supportBranchPrefix>
+					        <versionTagPrefix></versionTagPrefix>
+					        <origin>origin</origin>
+					    </gitFlowConfig>
+					    <commitMessages>
+					        <featureStartMessage>Update versions for feature branch of ${project.artifactId}</featureStartMessage>
+					        <featureFinishMessage>Update versions for development branch of ${project.artifactId}</featureFinishMessage>
+					        <hotfixStartMessage>Update versions for hotfix of ${project.artifactId}</hotfixStartMessage>
+					        <hotfixFinishMessage>Update for next development version of ${project.artifactId}</hotfixFinishMessage>
+					        <hotfixVersionUpdateMessage>Update to hotfix version of ${project.artifactId}</hotfixVersionUpdateMessage>
+					        <releaseStartMessage>Update versions for release of ${project.artifactId}</releaseStartMessage>
+					        <releaseFinishMessage>Update for next development version of ${project.artifactId}</releaseFinishMessage>
+					        <releaseVersionUpdateMessage>Update for next development version of ${project.artifactId}</releaseVersionUpdateMessage>
+					        <!-- git merge messages -->
+					        <!-- Default git merge commit message will be used if left empty or undefined. -->
+					        <releaseFinishMergeMessage></releaseFinishMergeMessage>
+					        <releaseFinishDevMergeMessage></releaseFinishDevMergeMessage>
+					        <featureFinishDevMergeMessage></featureFinishDevMergeMessage>
+					        <featureSquashMessage></featureSquashMessage>
+					        <hotfixFinishMergeMessage></hotfixFinishMergeMessage>
+					        <hotfixFinishDevMergeMessage></hotfixFinishDevMergeMessage>
+					        <hotfixFinishReleaseMergeMessage></hotfixFinishReleaseMergeMessage>
+					        <hotfixFinishSupportMergeMessage></hotfixFinishSupportMergeMessage>
+					        <!-- / git merge messages -->
+					        <tagHotfixMessage>Tag hotfix</tagHotfixMessage>
+					        <tagReleaseMessage>Tag release</tagReleaseMessage>
+					        <tagVersionUpdateMessage>Tag version update</tagVersionUpdateMessage>
+					        <!-- Migration Note: This was called <updateDevToAvoidConflitsMessage> in version 1.11.0, but has been deprecated in favour of the correctly spelt one below. -->
+					        <updateDevToAvoidConflictsMessage>Update develop to production version to avoid merge conflicts</updateDevToAvoidConflictsMessage>
+					        <updateDevBackPreMergeStateMessage>Update develop version back to pre-merge state</updateDevBackPreMergeStateMessage>
+					        <updateReleaseToAvoidConflictsMessage>Update release to hotfix version to avoid merge conflicts</updateReleaseToAvoidConflictsMessage>
+					        <updateReleaseBackPreMergeStateMessage>Update release version back to pre-merge state</updateReleaseBackPreMergeStateMessage>
+					        <updateFeatureBackMessage>Update feature branch back to feature version</updateFeatureBackMessage>
+					        <featureFinishIncrementVersionMessage>Increment feature version</featureFinishIncrementVersionMessage>
+					        <supportStartMessage>Update versions for support branch of ${project.artifactId}</supportStartMessage>
+					        <versionUpdateMessage>Update versions</versionUpdateMessage>
+					    </commitMessages>
+		            </configuration>
+		        </plugin>
 				<plugin>
 					<groupId>com.github.wvengen</groupId>
 					<artifactId>proguard-maven-plugin</artifactId>

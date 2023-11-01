@@ -44,7 +44,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testGetGroup() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.png");
+        final File file = new File("target/test-classes/test.png");
 
         final UserPrincipal group = PathUtilities.getInstance().getGroup(file.toPath());
 
@@ -59,7 +59,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testGetGroupWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.txt");
+        final File file = new File("target/test-classes/wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().getGroup(file.toPath()), "Exception not raised or has a wrong type");
     }
@@ -70,7 +70,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetOwner() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.png");
+        final File file = new File("target/test-classes/test.png");
 
         final UserPrincipal owner = PathUtilities.getInstance().getOwner(file.toPath());
 
@@ -84,7 +84,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetOwnerWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.txt");
+        final File file = new File("target/test-classes/wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().getOwner(file.toPath()), "Exception not raised or has a wrong type");
     }
@@ -95,7 +95,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetPermissions() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.png");
+        final File file = new File("target/test-classes/test.png");
 
         final Set<AclEntry> permissions = PathUtilities.getInstance().getPermissions(file.toPath());
 
@@ -110,7 +110,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetPermissionsWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.txt");
+        final File file = new File("target/test-classes/wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().getPermissions(file.toPath()), "Exception not raised or has a wrong type");
     }
@@ -122,7 +122,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetOwner() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.png");
+        final File file = new File("target/test-classes/test.png");
         final UserPrincipal owner = PathUtilities.getInstance().getOwner(file.toPath());
         final GroupPrincipal group = PathUtilities.getInstance().getGroup(file.toPath());
         System.out.println(owner);
@@ -139,7 +139,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetOwnerWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.txt");
+        final File file = new File("target/test-classes/wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().setOwner(file.toPath(), null, null), "Exception not raised or has a wrong type");
     }
@@ -151,7 +151,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetPermissions() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.png");
+        final File file = new File("target/test-classes/test.png");
         final UserPrincipal owner = PathUtilities.getInstance().getOwner(file.toPath());
         Set<AclEntry> permissions = new HashSet<>();
         permissions.add(AclEntry.newBuilder().setType(AclEntryType.ALLOW).setPrincipal(owner).setPermissions(AclEntryPermission.READ_DATA).build());
@@ -174,7 +174,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetPermissionsWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.txt");
+        final File file = new File("target/test-classes/wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().setPermissions(file.toPath(), new HashSet<>()), "Exception not raised or has a wrong type");
     }
@@ -236,7 +236,7 @@ class PathUtilitiesTest extends TestCase {
             FileUtils.deleteQuietly(file);
         }
 
-        FileUtils.copyFile(new File("target/test-classes/checksum_tests.png"), file);
+        FileUtils.copyFile(new File("target/test-classes/test.png"), file);
 
         assertThrows(IOException.class, () -> { // NOSONAR No lambda
             try (InputStream in = new FileInputStream(file)) {

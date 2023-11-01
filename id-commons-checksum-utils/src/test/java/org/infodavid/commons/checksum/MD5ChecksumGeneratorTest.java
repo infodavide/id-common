@@ -12,6 +12,6 @@ public class MD5ChecksumGeneratorTest extends AbstractChecksumGeneratorTest {
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
     public MD5ChecksumGeneratorTest() throws NoSuchAlgorithmException {
-        super(MD5ChecksumGenerator.ALGORITHM, "75d4fe0b1462895b5eead7f8823340e7");
+        super(MD5ChecksumGenerator.ALGORITHM, "e18b6c7ae28f46d4e9b1d179213c0d57");
     }
 }

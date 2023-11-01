@@ -1,11 +1,9 @@
 open module org.infodavid.commons.net {
-    exports org.infodavid.commons.net.udp;
-    exports org.infodavid.commons.net.rmi;
     exports org.infodavid.commons.net;
-    exports org.infodavid.commons.net.ssl;
-
+    exports org.infodavid.commons.net.udp;
+    
     requires transitive com.github.benmanes.caffeine;
-    requires java.rmi;
+    requires transitive java.rmi;
     requires transitive org.apache.commons.lang3;
     requires transitive org.apache.commons.net;
     requires transitive org.infodavid.commons.concurrency;

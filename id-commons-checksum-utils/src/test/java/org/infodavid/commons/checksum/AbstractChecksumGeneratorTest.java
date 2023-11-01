@@ -53,7 +53,7 @@ public abstract class AbstractChecksumGeneratorTest extends TestCase {
      */
     @Test
     public void testGetChecksumOnContent() throws Exception {
-        final String computed = generator.getChecksum(Paths.get("target/test-classes/checksum_tests.png"));
+        final String computed = generator.getChecksum(Paths.get("target/test-classes/test.png"));
 
         System.out.println(expectedChecksum);
         System.out.println(computed);
@@ -75,7 +75,7 @@ public abstract class AbstractChecksumGeneratorTest extends TestCase {
      */
     @Test
     public void testGetChecksumOnFile() throws Exception {
-        final File file = new File("target/test-classes/checksum_tests.png");
+        final File file = new File("target/test-classes/test.png");
         final String computed = generator.getChecksum(file.toPath());
 
         System.out.println(expectedChecksum);

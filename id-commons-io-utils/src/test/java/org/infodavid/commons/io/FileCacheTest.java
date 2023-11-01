@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class FileCacheTest extends TestCase {
 
     /** The Constant RESOURCE. */
-    private static final File RESOURCE = new File("src/test/resources/logback.xml");
+    private static final File RESOURCE = new File("src/test/resources/test.png");
 
     /** The Constant RESOURCE_LENGTH. */
     private static final long RESOURCE_LENGTH;

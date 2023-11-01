@@ -23,7 +23,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.mockito.internal.progress.ThreadSafeMockingProgress;
@@ -147,12 +146,11 @@ public class TestCase {
      * @throws Exception the exception
      */
     @BeforeEach
-    public void setUp(final TestInfo info, final TestReporter reporter) throws Exception { // NOSONAR See subclasses
+    public void setUp(final TestInfo info) throws Exception { // NOSONAR See subclasses
         final Optional<Class<?>> testClass = info.getTestClass();
 
         if (testClass.isPresent()) {
             final String message = "Running test: " + testClass.get().getName() + '.' + info.getDisplayName();
-            reporter.publishEntry(message);
             LOGGER.info(message);
             System.out.println(message); // NOSONAR For test
         }
