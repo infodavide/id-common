@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -27,16 +28,17 @@ import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.PersistenceException;
 
 /**
- * The Class AbstractSpringConfiguration.
+ * The Class SpringDataConfiguration.
  */
 @Configuration
+@ComponentScan(basePackages = { "org.infodavid.commons.persistence.impl.springdata.repository" })
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.infodavid.commons.persistence.impl.springdata.repository", repositoryBaseClass = QueryCallbackRepositoryImpl.class)
 @SuppressWarnings("static-method")
-public abstract class AbstractSpringConfiguration {
+public class SpringDataConfiguration {
 
     /** The Constant LOGGER. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSpringConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringDataConfiguration.class);
 
     /**
      * Property sources placeholder configurer.
@@ -103,9 +105,9 @@ public abstract class AbstractSpringConfiguration {
     private int validationTimeout;
 
     /**
-     * Instantiates a new abstract spring configuration.
+     * Instantiates a new configuration.
      */
-    public AbstractSpringConfiguration() {
+    public SpringDataConfiguration() {
         // noop
     }
 
@@ -132,7 +134,6 @@ public abstract class AbstractSpringConfiguration {
         LOGGER.debug("Creating the connection pool for database: {}", database);
         final HikariConfig config = new HikariConfig();
         config.setPoolName(database + "-pool");
-        config.setDriverClassName("org.mariadb.jdbc.Driver");
         config.setJdbcUrl("jdbc:mariadb://" + hostname + ':' + port + '/' + database);
         config.setUsername(username);
         config.setPassword(password);

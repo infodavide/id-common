@@ -25,9 +25,9 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.infodavid.commons.test.TestCase;
-import org.infodavid.commons.test.rules.ConditionalIgnore;
-import org.infodavid.commons.test.rules.RunOnlyOnLinuxCondition;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import net.lingala.zip4j.ZipFile;
 
@@ -41,8 +41,7 @@ class PathUtilitiesTest extends TestCase {
      * Test get group.
      * @throws Exception the exception
      */
-
-    @ConditionalIgnore(condition = RunOnlyOnLinuxCondition.class)
+    @EnabledOnOs(OS.LINUX)
     @Test
     void testGetGroup() throws Exception {
         final File file = new File("target/test-classes/checksum_tests.png");
@@ -57,7 +56,7 @@ class PathUtilitiesTest extends TestCase {
      * Test get group with wrong path.
      * @throws Exception the exception
      */
-    @ConditionalIgnore(condition = RunOnlyOnLinuxCondition.class)
+    @EnabledOnOs(OS.LINUX)
     @Test
     void testGetGroupWithWrongPath() throws Exception {
         final File file = new File("target/test-classes/checksum_tests.txt");
@@ -120,7 +119,7 @@ class PathUtilitiesTest extends TestCase {
      * Test set owner.
      * @throws Exception the exception
      */
-    @ConditionalIgnore(condition = RunOnlyOnLinuxCondition.class)
+    @EnabledOnOs(OS.LINUX)
     @Test
     void testSetOwner() throws Exception {
         final File file = new File("target/test-classes/checksum_tests.png");
@@ -137,7 +136,7 @@ class PathUtilitiesTest extends TestCase {
      * Test set owner with wrong path.
      * @throws Exception the exception
      */
-    @ConditionalIgnore(condition = RunOnlyOnLinuxCondition.class)
+    @EnabledOnOs(OS.LINUX)
     @Test
     void testSetOwnerWithWrongPath() throws Exception {
         final File file = new File("target/test-classes/checksum_tests.txt");
@@ -149,7 +148,7 @@ class PathUtilitiesTest extends TestCase {
      * Test set permissions.
      * @throws Exception the exception
      */
-    @ConditionalIgnore(condition = RunOnlyOnLinuxCondition.class)
+    @EnabledOnOs(OS.LINUX)
     @Test
     void testSetPermissions() throws Exception {
         final File file = new File("target/test-classes/checksum_tests.png");
@@ -172,7 +171,7 @@ class PathUtilitiesTest extends TestCase {
      * Test set permissions with wrong path.
      * @throws Exception the exception
      */
-    @ConditionalIgnore(condition = RunOnlyOnLinuxCondition.class)
+    @EnabledOnOs(OS.LINUX)
     @Test
     void testSetPermissionsWithWrongPath() throws Exception {
         final File file = new File("target/test-classes/checksum_tests.txt");

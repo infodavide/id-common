@@ -1,10 +1,7 @@
 package org.infodavid.commons.checksum;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -31,9 +28,6 @@ public final class ChecksumGeneratorRegistry {
         return SINGLETON;
     }
 
-    /** The algorithms. */
-    private final Collection<String> algorithms = new HashSet<>();
-
     /** The generators. */
     private final Map<String, ChecksumGenerator> generators; // NOSONAR
 
@@ -43,13 +37,11 @@ public final class ChecksumGeneratorRegistry {
     private ChecksumGeneratorRegistry() { // NOSONAR
         generators = new HashMap<>();
         final ServiceLoader<ChecksumGenerator> loader = ServiceLoader.load(ChecksumGenerator.class);
-        final Iterator<ChecksumGenerator> ite = loader.iterator();
 
-        while (ite.hasNext()) {
-            final ChecksumGenerator generator = ite.next();
+        loader.stream().sequential().forEach( i -> {
+            final ChecksumGenerator generator = i.get();
             generators.put(generator.getAlgorithm().replace("-", "").toLowerCase(), generator);
-            LOGGER.info("Implementation {} installed for {}", generator.getClass().getName(), generator.getAlgorithm());
-        }
+        });
 
         if (generators.isEmpty()) {
             LOGGER.warn("No implementation found");
@@ -82,7 +74,7 @@ public final class ChecksumGeneratorRegistry {
      * @return the supported algorithms
      */
     public String[] getSupportedAlgorithms() {
-        return algorithms.toArray(new String[algorithms.size()]);
+        return generators.keySet().toArray(new String[generators.size()]);
     }
 
     /**
@@ -94,7 +86,6 @@ public final class ChecksumGeneratorRegistry {
             return;
         }
 
-        algorithms.add(generator.getAlgorithm());
         generators.put(generator.getAlgorithm(), generator);
     }
 
@@ -108,12 +99,6 @@ public final class ChecksumGeneratorRegistry {
             return null;
         }
 
-        final ChecksumGenerator generator = generators.remove(algorithm);
-
-        if (generator != null) {
-            algorithms.remove(generator.getAlgorithm());
-        }
-
-        return generator;
+        return generators.remove(algorithm);
     }
 }

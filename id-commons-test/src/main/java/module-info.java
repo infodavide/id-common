@@ -10,7 +10,10 @@ module org.infodavid.commons.test {
     requires transitive org.apache.commons.lang3;
     requires transitive org.mockito;
     requires transitive org.slf4j;
-    requires transitive spring.core;
     requires transitive org.junit.jupiter.api;
+    requires transitive org.junit.jupiter.engine;
+    requires transitive org.junit.jupiter.params;
+    requires transitive org.junit.platform.engine;
+    requires transitive org.junit.platform.launcher;
     requires transitive org.junit.platform.commons;
 }

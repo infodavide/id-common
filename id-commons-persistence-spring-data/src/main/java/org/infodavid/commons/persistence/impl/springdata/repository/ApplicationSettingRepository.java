@@ -10,6 +10,7 @@ import org.infodavid.commons.persistence.dao.ApplicationSettingDao;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.PersistenceException;
@@ -17,7 +18,7 @@ import jakarta.persistence.PersistenceException;
 /**
  * The Interface ApplicationSettingRepository.
  */
-@org.springframework.stereotype.Repository
+@Repository
 public interface ApplicationSettingRepository extends ApplicationSettingDao, QueryCallbackRepository<ApplicationSetting, Long> {
 
     /*
@@ -50,6 +51,7 @@ public interface ApplicationSettingRepository extends ApplicationSettingDao, Que
     /**
      * Flushes all pending changes to the database.
      */
+    @Override
     @Transactional
     void flush();
 
@@ -79,6 +81,7 @@ public interface ApplicationSettingRepository extends ApplicationSettingDao, Que
      * @param entity the entity
      * @return the s
      */
+    @Override
     @Transactional
     <S extends ApplicationSetting> S save(S entity);
 

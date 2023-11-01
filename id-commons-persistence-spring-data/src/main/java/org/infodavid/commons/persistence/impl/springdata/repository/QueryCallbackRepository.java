@@ -2,8 +2,8 @@ package org.infodavid.commons.persistence.impl.springdata.repository;
 
 import org.infodavid.commons.model.Page;
 import org.infodavid.commons.persistence.impl.springdata.QueryCallback;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.Repository;
 
 /**
  * The Interface QueryCallbackRepository.
@@ -11,7 +11,7 @@ import org.springframework.data.repository.Repository;
  * @param <K> the key type
  */
 @NoRepositoryBean
-public interface QueryCallbackRepository<T, K> extends Repository<T, K> {
+public interface QueryCallbackRepository<T, K> extends JpaRepository<T, K> {
 
     /**
      * Find all.
