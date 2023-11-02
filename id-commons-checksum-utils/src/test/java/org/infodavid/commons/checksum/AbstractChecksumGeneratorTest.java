@@ -4,6 +4,8 @@ import static org.infodavid.commons.test.Assertions.assertEquals;
 import static org.infodavid.commons.test.Assertions.assertThrows;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +18,15 @@ import org.junit.jupiter.api.Test;
  * The Class AbstractChecksumGeneratorTest.
  */
 public abstract class AbstractChecksumGeneratorTest extends TestCase {
+
+    /**
+     * Gets the test path.
+     * @return the test path
+     * @throws URISyntaxException the URI syntax exception
+     */
+    protected static Path getTestPath() throws URISyntaxException {
+        return Paths.get(Thread.currentThread().getContextClassLoader().getResource("test.png").toURI());
+    }
 
     /** The algorithm. */
     private final String algorithm;
@@ -53,7 +64,7 @@ public abstract class AbstractChecksumGeneratorTest extends TestCase {
      */
     @Test
     public void testGetChecksumOnContent() throws Exception {
-        final String computed = generator.getChecksum(Paths.get("target/test-classes/test.png"));
+        final String computed = generator.getChecksum(Files.readAllBytes(getTestPath()));
 
         System.out.println(expectedChecksum);
         System.out.println(computed);
@@ -66,7 +77,7 @@ public abstract class AbstractChecksumGeneratorTest extends TestCase {
      */
     @Test
     public void testGetChecksumOnContentNull() throws Exception {
-        assertThrows("Exception not raised or has a wrong type", IllegalArgumentException.class, () -> generator.getChecksum((String) null));
+        assertThrows("Exception not raised or has a wrong type", IllegalArgumentException.class, () -> generator.getChecksum((byte[])null));
     }
 
     /**
@@ -75,8 +86,7 @@ public abstract class AbstractChecksumGeneratorTest extends TestCase {
      */
     @Test
     public void testGetChecksumOnFile() throws Exception {
-        final File file = new File("target/test-classes/test.png");
-        final String computed = generator.getChecksum(file.toPath());
+        final String computed = generator.getChecksum(getTestPath());
 
         System.out.println(expectedChecksum);
         System.out.println(computed);

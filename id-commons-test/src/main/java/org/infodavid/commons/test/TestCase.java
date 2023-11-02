@@ -16,14 +16,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.LogManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.internal.progress.ThreadSafeMockingProgress;
 import org.mockito.invocation.Invocation;
@@ -36,11 +39,13 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({
         "unchecked", "rawtypes", "static-method"
 })
+@ExtendWith(ExceptionExtension.class)
 @Timeout(value = 20, unit = TimeUnit.SECONDS)
 public class TestCase {
 
     static {
         System.setProperty("file.encoding", "utf8");
+        System.setProperty("user.language", "en");
     }
 
     /**
@@ -132,12 +137,28 @@ public class TestCase {
     }
 
     /**
+     * Sets the up class.
+     */
+    @BeforeAll
+    public static void setUpClass() {
+        try (InputStream in = TestCase.class.getClassLoader().getResourceAsStream("logging.properties")) {
+            if (in == null) {
+                System.err.println("No logging.properties file found in classpath"); // NOSONAR For testing
+            } else {
+                LogManager.getLogManager().readConfiguration(in);
+            }
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
      * Sets the up.
      * @throws Exception the exception
      */
     @BeforeEach
     public void setUp() throws Exception { // NOSONAR See subclasses
-        LOGGER.debug("Command line: {}", ProcessHandle.current().info().commandLine());
+        LOGGER.trace("Command line: {}", ProcessHandle.current().info().commandLine());
         reset();
     }
 

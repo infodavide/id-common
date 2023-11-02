@@ -3,7 +3,7 @@ package org.infodavid.commons.net;
 import static org.apache.commons.lang3.ArrayUtils.add;
 
 import java.io.BufferedReader;
-import java.io.IOError;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -97,17 +97,25 @@ class LinuxNetworkUtilities extends NetworkUtilities {
      */
     private static Path getScriptPath(final String script) throws IOException {
         final PathUtilities utils = PathUtilities.getInstance();
-        final Path path = Files.createTempFile(script, TMP_SUFFIX);
-        LOGGER.debug("Copying script: {} to: {}", script, path);
 
-        try (InputStream in = LinuxNetworkUtilities.class.getResourceAsStream(IP_FILE)) {
-            utils.copy(in, path);
+        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(script)) {
+            if (in == null) {
+                throw new FileNotFoundException(script);
+            }
+
+            final Path path = Files.createTempFile(script + '-', TMP_SUFFIX);
+            utils.deleteQuietly(path);
+            LOGGER.debug("Copying script: {} to: {}", script, path);
+            Files.copy(in, path);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Directory tree: {}", utils.printDirectoryTree(path.getParent()));
+            }
+
             utils.setExecutable(path);
-        } catch (final IOException e) {
-            throw new IOError(e);
-        }
 
-        return path;
+            return path;
+        }
     }
 
     /** The Constant TMP_SUFFIX. */
@@ -201,7 +209,6 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         final StringBuilder error = new StringBuilder();
         // We use a temporary hidden script without random name to format information
         final CommandRunner executor = CommandRunnerFactory.getInstance();
-
         LOGGER.debug("Trying to retrieve network interfaces using a shell script based on ip command");
         Exception exception = null;
         Path scriptPath = null;
@@ -223,6 +230,7 @@ class LinuxNetworkUtilities extends NetworkUtilities {
                 error.setLength(0);
             }
         } catch (final Exception e) {
+            LOGGER.warn(e.getMessage(), e); //NOSONAR Always write error
             exception = e;
             exitCode = -1;
         } finally {
@@ -240,12 +248,6 @@ class LinuxNetworkUtilities extends NetworkUtilities {
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(output.toString());
-                }
-
-                if (exitCode != 0) {
-                    LOGGER.warn(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString())); // NOSONAR Always written
-                    output.setLength(0);
-                    error.setLength(0);
                 }
             } catch (final Exception e) {
                 exception = e;
@@ -291,10 +293,10 @@ class LinuxNetworkUtilities extends NetworkUtilities {
                     results.put(entry.getName(), entry);
                 }
             }
-        } else if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), exception);
+        } else if (exception == null) {
+            LOGGER.error(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString())); //NOSONAR Always write error
         } else {
-            LOGGER.debug(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()));
+            LOGGER.error(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), exception); //NOSONAR Always write error
         }
 
         return results;

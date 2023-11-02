@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.AclEntry;
 import java.nio.file.attribute.AclEntryPermission;
 import java.nio.file.attribute.AclEntryType;
@@ -25,6 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.infodavid.commons.test.TestCase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -37,6 +41,39 @@ import net.lingala.zip4j.ZipFile;
 @SuppressWarnings("static-method")
 class PathUtilitiesTest extends TestCase {
 
+    /** The resource. */
+    private Path resource;
+
+    /** The resource directory. */
+    private Path resourceDirectory;
+
+    /**
+     * Sets the up.
+     * @throws Exception the exception
+     */
+    @Override
+    @BeforeEach
+    public void setUp() throws Exception {
+        resourceDirectory = Files.createTempDirectory(getClass().getSimpleName());
+        resource = resourceDirectory.resolve("test.png");
+
+        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.png")) {
+            Files.copy(in, resource, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.infodavid.commons.test.TestCase#tearDown()
+     */
+    @AfterEach
+    @Override
+    public void tearDown() throws Exception {
+        Files.deleteIfExists(resource);
+        Files.deleteIfExists(resourceDirectory);
+        super.tearDown();
+    }
+
     /**
      * Test get group.
      * @throws Exception the exception
@@ -44,9 +81,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testGetGroup() throws Exception {
-        final File file = new File("target/test-classes/test.png");
-
-        final UserPrincipal group = PathUtilities.getInstance().getGroup(file.toPath());
+        final UserPrincipal group = PathUtilities.getInstance().getGroup(resource);
 
         System.out.println(group);
         assertNotNull(group, "Null group");
@@ -59,7 +94,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testGetGroupWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/wrong.txt");
+        final File file = new File(FileUtils.getTempDirectory(), "wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().getGroup(file.toPath()), "Exception not raised or has a wrong type");
     }
@@ -70,9 +105,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetOwner() throws Exception {
-        final File file = new File("target/test-classes/test.png");
-
-        final UserPrincipal owner = PathUtilities.getInstance().getOwner(file.toPath());
+        final UserPrincipal owner = PathUtilities.getInstance().getOwner(resource);
 
         System.out.println(owner);
         assertNotNull(owner, "Null owner");
@@ -84,7 +117,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetOwnerWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/wrong.txt");
+        final File file = new File(FileUtils.getTempDirectory(), "wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().getOwner(file.toPath()), "Exception not raised or has a wrong type");
     }
@@ -95,9 +128,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetPermissions() throws Exception {
-        final File file = new File("target/test-classes/test.png");
-
-        final Set<AclEntry> permissions = PathUtilities.getInstance().getPermissions(file.toPath());
+        final Set<AclEntry> permissions = PathUtilities.getInstance().getPermissions(resource);
 
         System.out.println(permissions);
         assertNotNull(permissions, "Null permissions");
@@ -110,7 +141,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testGetPermissionsWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/wrong.txt");
+        final File file = new File(FileUtils.getTempDirectory(), "wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().getPermissions(file.toPath()), "Exception not raised or has a wrong type");
     }
@@ -122,14 +153,13 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetOwner() throws Exception {
-        final File file = new File("target/test-classes/test.png");
-        final UserPrincipal owner = PathUtilities.getInstance().getOwner(file.toPath());
-        final GroupPrincipal group = PathUtilities.getInstance().getGroup(file.toPath());
+        final UserPrincipal owner = PathUtilities.getInstance().getOwner(resource);
+        final GroupPrincipal group = PathUtilities.getInstance().getGroup(resource);
         System.out.println(owner);
 
-        PathUtilities.getInstance().setOwner(file.toPath(), owner.getName(), group == null ? null : group.getName());
+        PathUtilities.getInstance().setOwner(resource, owner.getName(), group == null ? null : group.getName());
 
-        assertEquals(owner, PathUtilities.getInstance().getOwner(file.toPath()), "Wrong owner");
+        assertEquals(owner, PathUtilities.getInstance().getOwner(resource), "Wrong owner");
     }
 
     /**
@@ -139,7 +169,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetOwnerWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/wrong.txt");
+        final File file = new File(FileUtils.getTempDirectory(), "wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().setOwner(file.toPath(), null, null), "Exception not raised or has a wrong type");
     }
@@ -151,20 +181,19 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetPermissions() throws Exception {
-        final File file = new File("target/test-classes/test.png");
-        final UserPrincipal owner = PathUtilities.getInstance().getOwner(file.toPath());
+        final UserPrincipal owner = PathUtilities.getInstance().getOwner(resource);
         Set<AclEntry> permissions = new HashSet<>();
         permissions.add(AclEntry.newBuilder().setType(AclEntryType.ALLOW).setPrincipal(owner).setPermissions(AclEntryPermission.READ_DATA).build());
         permissions.add(AclEntry.newBuilder().setType(AclEntryType.DENY).setPrincipal(owner).setPermissions(AclEntryPermission.WRITE_DATA).build());
 
-        PathUtilities.getInstance().setPermissions(file.toPath(), permissions);
+        PathUtilities.getInstance().setPermissions(resource, permissions);
 
-        permissions = PathUtilities.getInstance().getPermissions(file.toPath());
+        permissions = PathUtilities.getInstance().getPermissions(resource);
         System.out.println(permissions);
         assertNotNull(permissions, "Null permissions");
         assertFalse(permissions.isEmpty(), "Empty permissions");
-        assertTrue(Files.isReadable(file.toPath()), "Wrong permission");
-        assertFalse(Files.isWritable(file.toPath()), "Wrong permission");
+        assertTrue(Files.isReadable(resource), "Wrong permission");
+        assertFalse(Files.isWritable(resource), "Wrong permission");
     }
 
     /**
@@ -174,7 +203,7 @@ class PathUtilitiesTest extends TestCase {
     @EnabledOnOs(OS.LINUX)
     @Test
     void testSetPermissionsWithWrongPath() throws Exception {
-        final File file = new File("target/test-classes/wrong.txt");
+        final File file = new File(FileUtils.getTempDirectory(), "wrong.txt");
 
         assertThrows(NoSuchFileException.class, () -> PathUtilities.getInstance().setPermissions(file.toPath(), new HashSet<>()), "Exception not raised or has a wrong type");
     }
@@ -185,9 +214,9 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testUnzip() throws Exception {
-        final File file = new File("target/" + getClass().getSimpleName() + ".zip");
-        final File extractedDir = new File("target/extracted_" + getClass().getSimpleName());
-        final File sourceDir = new File("src/test/resources");
+        final File file = new File(FileUtils.getTempDirectory(), getClass().getSimpleName() + ".zip");
+        final File extractedDir = new File(FileUtils.getTempDirectory(), "extracted_" + getClass().getSimpleName());
+        final File sourceDir = resourceDirectory.toFile();
 
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
@@ -229,14 +258,14 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testUnzipWithInvalidFile() throws Exception {
-        final File file = new File("target/" + getClass().getSimpleName() + ".zip");
-        final File extractedDir = new File("target/extracted_" + getClass().getSimpleName());
+        final File file = new File(FileUtils.getTempDirectory(), getClass().getSimpleName() + ".zip");
+        final File extractedDir = new File(FileUtils.getTempDirectory(), "extracted_" + getClass().getSimpleName());
 
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
         }
 
-        FileUtils.copyFile(new File("target/test-classes/test.png"), file);
+        FileUtils.copyFile(resource.toFile(), file);
 
         assertThrows(IOException.class, () -> { // NOSONAR No lambda
             try (InputStream in = new FileInputStream(file)) {
@@ -253,9 +282,9 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testZip() throws Exception {
-        final File file = new File("target/" + getClass().getSimpleName() + ".zip");
-        final File extractedDir = new File("target/extracted_" + getClass().getSimpleName());
-        final File sourceDir = new File("src/test/resources");
+        final File file = new File(FileUtils.getTempDirectory(), getClass().getSimpleName() + ".zip");
+        final File extractedDir = new File(FileUtils.getTempDirectory(), "extracted_" + getClass().getSimpleName());
+        final File sourceDir = resourceDirectory.toFile();
 
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
@@ -293,7 +322,7 @@ class PathUtilitiesTest extends TestCase {
      */
     @Test
     void testZipWithInvalidPath() throws Exception {
-        final File file = new File("target/p1.zip");
+        final File file = new File(FileUtils.getTempDirectory(), "p1.zip");
 
         if (file.exists()) {
             FileUtils.deleteQuietly(file);

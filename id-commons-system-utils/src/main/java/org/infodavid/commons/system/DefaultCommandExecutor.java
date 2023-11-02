@@ -7,6 +7,7 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,10 @@ public final class DefaultCommandExecutor implements CommandRunner {
      */
     @Override
     public int run(final StringBuilder standardOutput, final StringBuilder errorOutput, final Path workingDirectory, final String[] command) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Given command: {}", ArrayUtils.toString(command));
+        }
+
         int code = -1;
         final CommandLine commandLine = new CommandLine(command[0]);
 

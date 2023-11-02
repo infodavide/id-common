@@ -661,16 +661,6 @@
 		</dependencies>
 	</dependencyManagement>
 	<build>
-		<resources>
-	    	<resource>
-	       		<directory>src/main/resources</directory>
-	     	</resource>
-	   </resources>
-	   <testResources>
-		   <testResource>
-			   <directory>src/test/resources</directory>
-		   </testResource>
-	   </testResources>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -791,25 +781,18 @@
 				            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
 				            <version>1.2.1</version>
 				        </dependency>
-				        <dependency>
-							<groupId>ch.qos.logback</groupId>
-			        		<artifactId>logback-classic</artifactId>
-			        		<version>1.4.11</version>
-						</dependency>
 				    </dependencies>
 					<configuration>
-						<argLine>-Dfile.encoding=UTF-8</argLine>
+						<argLine>-Dfile.encoding=UTF-8 -Duser.language=en</argLine>						
 						<excludes>
 							<exclude>**/*Manual*.java</exclude>
 						</excludes>
-						<additionalClasspathElements>
-							<additionalClasspathElement>${project.build.directory}/test-classes</additionalClasspathElement>
-						</additionalClasspathElements>
 						<printSummary>true</printSummary>
 						<trimStackTrace>false</trimStackTrace>
-						<redirectTestOutputToFile>true</redirectTestOutputToFile>
 						<useManifestOnlyJar>false</useManifestOnlyJar>
-						<!--If used, classloader will be affected and resources cannot be loaded using a relative path <forkCount>0</forkCount>-->
+						<redirectTestOutputToFile>true</redirectTestOutputToFile>
+						<!--If not used, classloader will be affected and resources cannot be loaded using a relative path --> 
+						<forkCount>0</forkCount>
 						<properties>
 							<configurationParameters>
 								junit.jupiter.extensions.autodetection.enabled = true
@@ -828,10 +811,7 @@
 		                    <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
 		                    <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
 		                </statelessTestsetReporter>
-						<consoleOutputReporter>
-				            <disable>true</disable>
-				        </consoleOutputReporter>
-				        <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
+						<statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
 					</configuration>
 				</plugin>
 				 <plugin>

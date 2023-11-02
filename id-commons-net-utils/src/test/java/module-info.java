@@ -1,7 +1,6 @@
 open module org.infodavid.commons.net {
     exports org.infodavid.commons.net;
-    exports org.infodavid.commons.net.udp;
-    
+
     requires transitive com.github.benmanes.caffeine;
     requires transitive java.rmi;
     requires transitive org.apache.commons.lang3;
@@ -11,5 +10,6 @@ open module org.infodavid.commons.net {
     requires transitive org.infodavid.commons.system;
     requires transitive org.infodavid.commons.utility;
     requires transitive org.slf4j;
+    requires transitive org.slf4j.jul;
     requires transitive org.infodavid.commons.test;
 }

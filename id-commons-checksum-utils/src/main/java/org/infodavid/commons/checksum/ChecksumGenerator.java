@@ -28,7 +28,7 @@ public interface ChecksumGenerator {
      * @return the checksum
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    String getChecksum(String content) throws IOException; // NOSONAR
+    String getChecksum(byte[] content) throws IOException; // NOSONAR
 
     /**
      * Checks if is command supported.
