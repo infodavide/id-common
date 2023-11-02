@@ -12,6 +12,6 @@ public class SHA384ChecksumGeneratorTest extends AbstractChecksumGeneratorTest {
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
     public SHA384ChecksumGeneratorTest() throws NoSuchAlgorithmException {
-        super(SHA384ChecksumGenerator.ALGORITHM, "0d35969252812b63d22a0fc28e281693f7e4659ee2cf404fb5651dc289ee8a2d50cc7f99f3b5eab31d088da55aa00956");
+        super(SHA384ChecksumGenerator.ALGORITHM, "7df37820d3ce4f409b2b9acf69643afcdb45e91cae13b5f6c8349f809a160b7843a4063d545fde212a7cd0da15afe3b4");
     }
 }

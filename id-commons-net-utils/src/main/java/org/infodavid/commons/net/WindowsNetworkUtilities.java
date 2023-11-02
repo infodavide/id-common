@@ -39,6 +39,13 @@ class WindowsNetworkUtilities extends NetworkUtilities {
     /** The Constant PARSING_LINE. */
     private static final String PARSING_LINE = "Parsing line: {}";
 
+    /**
+     * Instantiates a new network utilities.
+     */
+    public WindowsNetworkUtilities() {
+        // noop
+    }
+
     /*
      * (non-Javadoc)
      * @see org.infodavid.commons.net.NetworkUtilities#discover(org.infodavid.commons.net.udp.DiscoveryListener)

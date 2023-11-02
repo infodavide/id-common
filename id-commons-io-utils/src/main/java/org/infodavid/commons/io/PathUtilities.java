@@ -1,10 +1,8 @@
 package org.infodavid.commons.io;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
@@ -421,23 +419,6 @@ public final class PathUtilities {
         Files.walkFileTree(p1, matcher);
 
         return matcher.getDifferences().isEmpty();
-    }
-
-    /**
-     * Copy the content and replace the EOL of the file by the one associated to the current system.
-     * @param in     the input stream
-     * @param target the target
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    public void copy(final InputStream in, final Path target) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in)); BufferedWriter writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE)) {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.newLine();
-            }
-        }
     }
 
     /**
@@ -1063,7 +1044,7 @@ public final class PathUtilities {
                 }
             });
         } catch (final IOException e) {
-            LOGGER.debug("An error occured while listing directory: " + folder, e); // NOSONAR Not with a throwable
+            LOGGER.debug("An error occured while listing directory: {} ({})", folder, e.getMessage()); // NOSONAR Not with a throwable
         }
     }
 
@@ -1226,8 +1207,8 @@ public final class PathUtilities {
             } catch (final RuntimeException e) {
                 IOException cause;
 
-                if (e.getCause() instanceof IOException) {
-                    cause = (IOException) e.getCause();
+                if (e.getCause() instanceof final IOException e2) {
+                    cause = e2;
                 } else {
                     cause = new IOException(e);
                 }
@@ -1347,8 +1328,8 @@ public final class PathUtilities {
             } catch (final RuntimeException e) {
                 IOException cause;
 
-                if (e.getCause() instanceof IOException) {
-                    cause = (IOException) e.getCause();
+                if (e.getCause() instanceof final IOException e2) {
+                    cause = e2;
                 } else {
                     cause = new IOException(e);
                 }

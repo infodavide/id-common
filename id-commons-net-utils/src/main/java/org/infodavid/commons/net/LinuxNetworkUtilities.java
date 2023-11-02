@@ -3,6 +3,7 @@ package org.infodavid.commons.net;
 import static org.apache.commons.lang3.ArrayUtils.add;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -88,6 +89,45 @@ class LinuxNetworkUtilities extends NetworkUtilities {
     /** The Constant TIMESYNCD_CONF_FILE. */
     private static final String TIMESYNCD_CONF_FILE = "/etc/systemd/timesyncd.conf";
 
+    /**
+     * Copy script.
+     * @param script the script
+     * @return the script path
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    private static Path getScriptPath(final String script) throws IOException {
+        final PathUtilities utils = PathUtilities.getInstance();
+
+        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(script)) {
+            if (in == null) {
+                throw new FileNotFoundException(script);
+            }
+
+            final Path path = Files.createTempFile(script + '-', TMP_SUFFIX);
+            utils.deleteQuietly(path);
+            LOGGER.debug("Copying script: {} to: {}", script, path);
+            Files.copy(in, path);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Directory tree: {}", utils.printDirectoryTree(path.getParent()));
+            }
+
+            utils.setExecutable(path);
+
+            return path;
+        }
+    }
+
+    /** The Constant TMP_SUFFIX. */
+    private static final String TMP_SUFFIX = ".tmp";
+
+    /**
+     * Instantiates a new network utilities.
+     */
+    public LinuxNetworkUtilities() {
+        // noop
+    }
+
     /*
      * (non-Javadoc)
      * @see org.infodavid.commons.net.NetworkUtilities#discover(org.infodavid.commons.net.udp.DiscoveryListener)
@@ -157,18 +197,6 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         return LOGGER;
     }
 
-    /**
-     * Copy script.
-     * @param in     the in
-     * @param script the script
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    private static void copyScript(final InputStream in, final Path script) throws IOException {
-        final PathUtilities utils = PathUtilities.getInstance();
-        utils.copy(in, script);
-        utils.setExecutable(script);
-    }
-
     /*
      * (non-Javadoc)
      * @see org.infodavid.commons.net.NetworkUtilities#getNetworkInterfaces()
@@ -180,101 +208,95 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         final StringBuilder output = new StringBuilder();
         final StringBuilder error = new StringBuilder();
         // We use a temporary hidden script without random name to format information
-        final Path script = utils.getUserPath().resolve('.' + IP_FILE);
         final CommandRunner executor = CommandRunnerFactory.getInstance();
+        LOGGER.debug("Trying to retrieve network interfaces using a shell script based on ip command");
+        Exception exception = null;
+        Path scriptPath = null;
+        int exitCode = 0;
 
         try {
-            LOGGER.debug("Trying to retrieve network interfaces using a shell script based on ip command");
-            Exception exception = null;
-            int exitCode = 0;
+            scriptPath = getScriptPath(IP_FILE);
+            exitCode = executor.run(output, error, new String[] {
+                    scriptPath.toAbsolutePath().toString()
+            });
 
-            try (InputStream in = getClass().getResourceAsStream(IP_FILE)) {
-                copyScript(in, script);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(output.toString());
+            }
+
+            if (exitCode != 0) {
+                LOGGER.warn(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString())); // NOSONAR Always written
+                output.setLength(0);
+                error.setLength(0);
+            }
+        } catch (final Exception e) {
+            LOGGER.warn(e.getMessage(), e); //NOSONAR Always write error
+            exception = e;
+            exitCode = -1;
+        } finally {
+            utils.deleteQuietly(scriptPath);
+        }
+
+        if (exitCode != 0) {
+            LOGGER.debug("Trying to retrieve network interfaces using a shell script based on ifconfig command");
+
+            try {
+                scriptPath = getScriptPath(IFCONFIG_FILE);
                 exitCode = executor.run(output, error, new String[] {
-                        script.toAbsolutePath().toString()
+                        scriptPath.toAbsolutePath().toString()
                 });
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(output.toString());
                 }
-
-                if (exitCode != 0) {
-                    LOGGER.warn(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString())); // NOSONAR Always written
-                    output.setLength(0);
-                    error.setLength(0);
-                }
             } catch (final Exception e) {
                 exception = e;
                 exitCode = -1;
+            } finally {
+                utils.deleteQuietly(scriptPath);
             }
+        }
 
-            if (exitCode != 0) {
-                LOGGER.debug("Trying to retrieve network interfaces using a shell script based on ifconfig command");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Output:\n{}", output);
+        }
 
-                try (InputStream in = getClass().getResourceAsStream(IFCONFIG_FILE)) {
-                    copyScript(in, script);
-                    exitCode = executor.run(output, error, new String[] {
-                            script.toAbsolutePath().toString()
-                    });
+        if (exitCode == 0) {
+            for (final String line : output.toString().split("\\r?\\n")) {
+                if (StringUtils.isEmpty(StringUtils.trim(line)) || line.charAt(0) == '#') {
+                    continue;
+                }
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(output.toString());
-                    }
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Parsing line: {}", line);
+                }
 
-                    if (exitCode != 0) {
-                        LOGGER.warn(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString())); // NOSONAR Always written
-                        output.setLength(0);
-                        error.setLength(0);
-                    }
-                } catch (final Exception e) {
-                    exception = e;
-                    exitCode = -1;
+                // 0 interface name
+                // 1 ip v4 address
+                // 2 netmask (example: 255.255.255.0)
+                // 3 gateway ipv4 address
+                // 4 mac address (with : delimiter)
+                // 5 state (UP or else)
+                // 6 dhcp (ENABLED or else)
+                final String[] cells = StringUtils.splitPreserveAllTokens(line, ',');
+
+                if (cells.length > 5) {
+                    final InterfaceDescription entry = new InterfaceDescription();
+                    entry.setName(cells[0].trim());
+                    entry.setIpv4Address(cells[1].trim());
+                    entry.setNetmask(cells[2].trim());
+                    entry.setGateway(cells[3].trim());
+                    entry.setMacAddress(cells[4].trim().toUpperCase().replaceAll("-|_|\\s", "")); // NOSONAR Keep pattern as it is
+                    entry.setConnected("UP".equalsIgnoreCase(cells[5].trim()));
+                    entry.setDhcp("ENABLED".equalsIgnoreCase(cells[6].trim()));
+                    entry.setEnabled(entry.isConnected() || StringUtils.isNotEmpty(entry.getIpv4Address()));
+                    results.put(entry.getName(), entry);
                 }
             }
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Output:\n{}", output);
-            }
-
-            if (exitCode == 0) {
-                for (final String line : output.toString().split("\\r?\\n")) {
-                    if (StringUtils.isEmpty(StringUtils.trim(line)) || line.charAt(0) == '#') {
-                        continue;
-                    }
-
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Parsing line: {}", line);
-                    }
-
-                    // 0 interface name
-                    // 1 ip v4 address
-                    // 2 netmask (example: 255.255.255.0)
-                    // 3 gateway ipv4 address
-                    // 4 mac address (with : delimiter)
-                    // 5 state (UP or else)
-                    // 6 dhcp (ENABLED or else)
-                    final String[] cells = StringUtils.splitPreserveAllTokens(line, ',');
-
-                    if (cells.length > 5) {
-                        final InterfaceDescription entry = new InterfaceDescription();
-                        entry.setName(cells[0].trim());
-                        entry.setIpv4Address(cells[1].trim());
-                        entry.setNetmask(cells[2].trim());
-                        entry.setGateway(cells[3].trim());
-                        entry.setMacAddress(cells[4].trim().toUpperCase().replaceAll("-|_|\\s", "")); // NOSONAR Keep pattern as it is
-                        entry.setConnected("UP".equalsIgnoreCase(cells[5].trim()));
-                        entry.setDhcp("ENABLED".equalsIgnoreCase(cells[6].trim()));
-                        entry.setEnabled(entry.isConnected() || StringUtils.isNotEmpty(entry.getIpv4Address()));
-                        results.put(entry.getName(), entry);
-                    }
-                }
-            } else if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), exception);
-            } else {
-                LOGGER.debug(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()));
-            }
-        } finally {
-            utils.deleteQuietly(script);
+        } else if (exception == null) {
+            LOGGER.error(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString())); //NOSONAR Always write error
+        } else {
+            LOGGER.error(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), exception); //NOSONAR Always write error
         }
 
         return results;
@@ -344,14 +366,13 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         final StringBuilder output = new StringBuilder();
         final StringBuilder error = new StringBuilder();
         // We use a temporary hidden script without random name to allow sudo rule
-        final Path script = utils.getUserPath().resolve('.' + SET_DNS_FILE);
+        final Path scriptPath = getScriptPath(SET_DNS_FILE);
         final CommandRunner executor = CommandRunnerFactory.getInstance();
 
-        try (InputStream in = getClass().getResourceAsStream(SET_DNS_FILE)) {
+        try {
             LOGGER.info("Updating DNS servers: {}", addresses);
-            copyScript(in, script);
             String[] command = {
-                    BIN_SUDO, script.toAbsolutePath().toString()
+                    BIN_SUDO, scriptPath.toAbsolutePath().toString()
             };
 
             if (StringUtils.isEmpty(domain)) {
@@ -379,7 +400,7 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         } catch (final Exception e) {
             throw new IOException(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), e);
         } finally {
-            utils.deleteQuietly(script);
+            utils.deleteQuietly(scriptPath);
         }
     }
 
@@ -440,14 +461,13 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         final StringBuilder output = new StringBuilder();
         final StringBuilder error = new StringBuilder();
         // We use a temporary hidden script without random name to allow sudo rule
-        final Path script = utils.getUserPath().resolve('.' + SET_INTERFACE_FILE);
+        final Path scriptPath = getScriptPath(SET_INTERFACE_FILE);
         final CommandRunner executor = CommandRunnerFactory.getInstance();
 
-        try (InputStream in = getClass().getResourceAsStream(SET_INTERFACE_FILE)) {
+        try {
             LOGGER.info("Updating interface: {}", iface);
-            copyScript(in, script);
             String[] command = {
-                    BIN_SUDO, script.toAbsolutePath().toString(), "-i", iface.getName()
+                    BIN_SUDO, scriptPath.toAbsolutePath().toString(), "-i", iface.getName()
             };
 
             if (iface.isDhcp()) {
@@ -482,7 +502,7 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         } catch (final Exception e) {
             throw new IOException(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), e);
         } finally {
-            utils.deleteQuietly(script);
+            utils.deleteQuietly(scriptPath);
         }
     }
 
@@ -506,14 +526,13 @@ class LinuxNetworkUtilities extends NetworkUtilities {
         final StringBuilder output = new StringBuilder();
         final StringBuilder error = new StringBuilder();
         // We use a temporary hidden script without random name to allow sudo rule
-        final Path script = utils.getUserPath().resolve('.' + SET_NTP_FILE);
+        final Path scriptPath = getScriptPath(SET_NTP_FILE);
         final CommandRunner executor = CommandRunnerFactory.getInstance();
 
-        try (InputStream in = getClass().getResourceAsStream(SET_NTP_FILE)) {
+        try {
             LOGGER.info("Updating NTP servers: {}", addresses);
-            copyScript(in, script);
             String[] command = {
-                    BIN_SUDO, script.toAbsolutePath().toString()
+                    BIN_SUDO, scriptPath.toAbsolutePath().toString()
             };
 
             for (final String address : addresses) {
@@ -534,7 +553,7 @@ class LinuxNetworkUtilities extends NetworkUtilities {
             throw new IOException(String.format(ERROR_IN_COMMAND_EXECUTION, error.toString()), e);
 
         } finally {
-            utils.deleteQuietly(script);
+            utils.deleteQuietly(scriptPath);
         }
     }
 }

@@ -31,11 +31,11 @@ public final class SHA512ChecksumGenerator extends AbstractChecksumGenerator {
     }
 
     /*
-     * (non-javadoc)
-     * @see org.infodavid.commons.checksum.ChecksumGenerator#getChecksum(java.lang.String)
+     * (non-Javadoc)
+     * @see org.infodavid.commons.checksum.ChecksumGenerator#getChecksum(byte[])
      */
     @Override
-    public String getChecksum(final String content) throws IOException {
+    public String getChecksum(final byte[] content) throws IOException {
         if (content == null) {
             throw new IllegalArgumentException("Content is null");
         }

@@ -2,9 +2,11 @@ package org.infodavid.commons.jdk;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.infodavid.commons.test.TestCase;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -13,22 +15,35 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("static-method")
 class DiagnosticUtilitiesTest extends TestCase {
 
+    /** The resource. */
+    private Path resource;
+
+    /*
+     * (non-Javadoc)
+     * @see org.infodavid.commons.test.TestCase#tearDown()
+     */
+    @AfterEach
+    @Override
+    public void tearDown() throws Exception {
+        if (resource != null) {
+            Files.deleteIfExists(resource);
+        }
+
+        super.tearDown();
+    }
+
     /**
      * Test build head dump.
      * @throws Exception the exception
      */
     @Test
     void testBuildHeadDump() throws Exception { // NOSONAR No error
-        final File path = new File("target/heapdump.hprof");
+        resource = Files.createTempFile(getClass().getSimpleName() + "-heapdump-", ".hprof");
+        Files.deleteIfExists(resource);
 
-        if (path.exists()) {
-            path.delete();
+        DiagnosticUtilities.getInstance().buildHeadDump(resource.toAbsolutePath().toString());
 
-        }
-
-        DiagnosticUtilities.getInstance().buildHeadDump(path.getAbsolutePath());
-
-        assertTrue(path.exists(), "File not found");
+        assertTrue(Files.exists(resource), "File not found");
     }
 
     /**

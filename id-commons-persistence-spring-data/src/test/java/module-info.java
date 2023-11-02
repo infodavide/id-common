@@ -1,7 +1,7 @@
 open module org.infodavid.commons.persistence.springdata {
     exports org.infodavid.commons.persistence.impl.springdata;
     exports org.infodavid.commons.persistence.impl.springdata.repository;
-    
+
     requires transitive org.infodavid.commons.model;
     requires transitive org.infodavid.commons.persistence.api;
     requires transitive org.hsqldb;
@@ -11,7 +11,7 @@ open module org.infodavid.commons.persistence.springdata {
     requires transitive jakarta.transaction;
     requires transitive jakarta.xml.bind;
     requires transitive java.sql;
-    requires transitive org.apache.commons.lang3;    
+    requires transitive org.apache.commons.lang3;
     requires transitive org.slf4j;
     requires transitive spring.beans;
     requires transitive spring.context;
@@ -26,7 +26,7 @@ open module org.infodavid.commons.persistence.springdata {
     requires transitive org.hibernate.orm.core;
     requires transitive org.hibernate.commons.annotations;
     requires transitive com.fasterxml.classmate;
-    requires transitive net.bytebuddy;    
+    requires transitive net.bytebuddy;
     requires transitive org.infodavid.commons.test;
     requires transitive spring.test;
 }

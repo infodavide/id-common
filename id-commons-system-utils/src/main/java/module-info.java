@@ -3,6 +3,7 @@ import org.infodavid.commons.system.DefaultCommandExecutor;
 
 module org.infodavid.commons.system {
     exports org.infodavid.commons.system;
+    opens org.infodavid.commons.system;
     provides CommandRunner with DefaultCommandExecutor;
     uses CommandRunner;
 

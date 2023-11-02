@@ -14,5 +14,5 @@ open module org.infodavid.commons.checksum {
     requires transitive org.apache.commons.codec;
     requires transitive org.apache.commons.lang3;
     requires transitive org.slf4j;
-    requires org.infodavid.commons.test;
+    requires transitive org.infodavid.commons.test;
 }
