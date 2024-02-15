@@ -30,7 +30,6 @@
 		<tomcat.version>8.5.35</tomcat.version>
 	</properties>
 	<modules>
-		<module>swt</module>
 		<module>id-commons-utils</module>
 		<module>id-commons-checksum-utils</module>
 		<module>id-commons-concurrency-utils</module>
