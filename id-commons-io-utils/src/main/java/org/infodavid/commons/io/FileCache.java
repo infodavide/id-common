@@ -1,23 +1,14 @@
 package org.infodavid.commons.io;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +24,10 @@ public class FileCache {
     /**
      * The Class CacheWeigher.
      */
-    private static class CacheWeigher implements Weigher<URI, Content> {
+    private static class CacheWeigher implements Weigher<Path, Content> {
 
         @Override
-        public int weigh(final URI key, final Content value) {
+        public int weigh(final Path key, final Content value) {
             if (value == null || value.getData() == null) {
                 return 0;
             }
@@ -55,7 +46,7 @@ public class FileCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileCache.class);
 
     /** The contents cache. */
-    private Cache<URI, Content> contentCache;
+    private Cache<Path, Content> contentCache;
 
     /** The enabled. */
     private boolean enabled = true;
@@ -64,7 +55,7 @@ public class FileCache {
     private long expiration = DEFAULT_EXPIRATION;
 
     /** The locks cache. */
-    private final Cache<URI, Lock> lockCache;
+    private final Cache<Path, Lock> lockCache;
 
     /** The maximum weight. */
     private long maximumWeight = DEFAULT_MAXIMUM_WEIGHT;
@@ -94,8 +85,8 @@ public class FileCache {
         }
 
         builder.removalListener((k, v, c) -> {
-            if (k instanceof final URI u) {
-                lockCache.invalidate(u);
+            if (k instanceof final Path p) {
+                lockCache.invalidate(p);
             }
         });
 
@@ -113,7 +104,7 @@ public class FileCache {
             throw new IOException("Specified file is null");
         }
 
-        return getData(file.toURI());
+        return getData(file.toPath());
     }
 
     /**
@@ -127,39 +118,34 @@ public class FileCache {
             throw new IOException("Specified path is null");
         }
 
-        return getData(path.toUri());
-    }
-
-    /**
-     * Gets the bytes.
-     * @param uri the URI
-     * @return the bytes
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    public byte[] getData(final URI uri) throws IOException {
-        if (uri == null) {
-            throw new IOException("Specified URI is null");
-        }
-
-        final Lock lock = lockCache.get(uri, k -> new ReentrantLock());
+        final Lock lock = lockCache.get(path, k -> new ReentrantLock());
         lock.lock();
 
         try {
-            Content content = enabled ? contentCache.getIfPresent(uri) : null;
-
-            if (content != null && content.getModificationDate() < getLastModificationDate(uri)) {
+            Content content = enabled ? contentCache.getIfPresent(path) : null;
+            long lastModifiedTime = Files.getLastModifiedTime(path).toMillis();
+            
+            if (LOGGER.isDebugEnabled() && content != null) {
+                LOGGER.debug("Modification dates: {} < {}",  String.valueOf(content.getModificationDate()),  String.valueOf(lastModifiedTime));
+            }
+            
+            if (content != null && content.getModificationDate() < lastModifiedTime) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Content modified since : {}, reloading", new Date(content.getModificationDate()));
+                    LOGGER.debug("Content modified since : {}, reloading: {}", new Date(content.getModificationDate()), path);
                 }
 
                 content = null;
             }
 
             if (content == null) {
-                content = load(uri);
+                content = new Content(Files.readAllBytes(path), lastModifiedTime);
 
                 if (enabled) {
-                    contentCache.put(uri, content);
+                    contentCache.put(path, content);
+                }
+                
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Content size : {}", String.valueOf(content.getData().length));
                 }
             }
 
@@ -170,24 +156,6 @@ public class FileCache {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cache size: {} ({})", String.valueOf(contentCache.estimatedSize()), String.valueOf(lockCache.estimatedSize()));
             }
-        }
-    }
-
-    /**
-     * Gets the bytes.
-     * @param url the URL
-     * @return the bytes
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    public byte[] getData(final URL url) throws IOException {
-        if (url == null) {
-            throw new IOException("Specified URL is null");
-        }
-
-        try {
-            return getData(url.toURI());
-        } catch (final URISyntaxException e) {
-            throw new IOException(ExceptionUtils.getRootCause(e));
         }
     }
 
@@ -272,106 +240,5 @@ public class FileCache {
 
             lockCache.invalidate(k);
         }).build();
-    }
-
-    /**
-     * Load.
-     * @param uri the URI
-     * @return the content
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    private static Content load(final URI uri) throws IOException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Loading data from URI: {}", uri);
-        }
-
-        if ("file".equalsIgnoreCase(uri.getScheme())) {
-            final File file = new File(uri);
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Modification date: {}", new Date(file.lastModified()));
-            }
-
-            return new Content(FileUtils.readFileToByteArray(file), file.lastModified());
-        }
-
-        final URLConnection connection = uri.toURL().openConnection();
-
-        try (InputStream in = connection.getInputStream()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Modification date: {}", new Date(connection.getLastModified()));
-            }
-
-            return new Content(IOUtils.toByteArray(in), connection.getLastModified());
-        } finally {
-            if (connection instanceof final HttpURLConnection c) {
-                c.disconnect();
-            } else if (connection instanceof final Closeable c) {
-                c.close();
-            }
-        }
-    }
-
-    /**
-     * Gets the current modification date.
-     * @param file the file
-     * @return the current modification date
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    protected long getCurrentModificationDate(final File file) throws IOException {
-        if (file == null) {
-            throw new IOException("Specified file is null");
-        }
-
-        final Content content = contentCache.getIfPresent(file.toURI());
-
-        return content == null ? -1 : content.getModificationDate();
-    }
-
-    /**
-     * Gets the current modification date.
-     * @param uri the URI
-     * @return the current modification date
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    protected long getCurrentModificationDate(final URI uri) throws IOException {
-        if (uri == null) {
-            throw new IOException("Specified URI is null");
-        }
-
-        final Content content = contentCache.getIfPresent(uri);
-
-        return content == null ? -1 : content.getModificationDate();
-    }
-
-    /**
-     * Gets the last modification date.
-     * @param file the file
-     * @return the last modification date
-     */
-    @SuppressWarnings("static-method")
-    protected long getLastModificationDate(final File file) {
-        return file.lastModified();
-    }
-
-    /**
-     * Gets the last modification date.
-     * @param uri the URI
-     * @return the last modification date
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-    @SuppressWarnings("static-method")
-    protected long getLastModificationDate(final URI uri) throws IOException {
-        final URLConnection connection = uri.toURL().openConnection();
-
-        try {
-            return connection.getLastModified();
-        } finally {
-            if (connection instanceof final HttpURLConnection c) {
-                c.disconnect();
-            } else if (connection instanceof final Closeable c) {
-                c.close();
-            }
-        }
     }
 }
