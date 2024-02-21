@@ -30,6 +30,7 @@ import org.infodavid.commons.test.TestCase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -53,7 +54,8 @@ class PathUtilitiesTest extends TestCase {
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(final TestInfo info) throws Exception {
+        super.setUp(info);
         resourceDirectory = Files.createTempDirectory(getClass().getSimpleName());
         resource = resourceDirectory.resolve("test.png");
 

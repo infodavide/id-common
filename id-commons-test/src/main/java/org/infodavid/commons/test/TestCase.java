@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -22,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Timeout;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * The Class TestCase.
  */
 @SuppressWarnings({
-        "unchecked", "rawtypes", "static-method"
+        "unchecked", "rawtypes"
 })
 @ExtendWith(ExceptionExtension.class)
 @Timeout(value = 20, unit = TimeUnit.SECONDS)
@@ -46,6 +46,7 @@ public class TestCase {
     static {
         System.setProperty("file.encoding", "utf8");
         System.setProperty("user.language", "en");
+        Locale.setDefault(Locale.US);
     }
 
     /**
@@ -137,37 +138,25 @@ public class TestCase {
     }
 
     /**
-     * Sets the up class.
-     */
-    @BeforeAll
-    public static void setUpClass() {
-        try (InputStream in = TestCase.class.getClassLoader().getResourceAsStream("logging.properties")) {
-            if (in == null) {
-                System.err.println("No logging.properties file found in classpath"); // NOSONAR For testing
-            } else {
-                LogManager.getLogManager().readConfiguration(in);
-            }
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Sets the up.
-     * @throws Exception the exception
-     */
-    @BeforeEach
-    public void setUp() throws Exception { // NOSONAR See subclasses
-        LOGGER.trace("Command line: {}", ProcessHandle.current().info().commandLine());
-        reset();
-    }
-
-    /**
      * Sets the up.
      * @throws Exception the exception
      */
     @BeforeEach
     public void setUp(final TestInfo info) throws Exception { // NOSONAR See subclasses
+        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("logging.properties")) {
+            if (in == null) {
+                System.err.println("No logging.properties file found in classpath"); // NOSONAR For testing
+            } else {
+                System.err.println("Using logging.properties from commons-test"); // NOSONAR For testing
+                LogManager.getLogManager().updateConfiguration(in, null);
+            }
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        LOGGER.debug("Command line: {}", ProcessHandle.current().info().commandLine());
+        reset();
+        
         final Optional<Class<?>> testClass = info.getTestClass();
 
         if (testClass.isPresent()) {
@@ -311,15 +300,15 @@ public class TestCase {
     /**
      * Wait.
      * @param callable the callable returning false to wait
-     * @param timeout  the timeout
+     * @param duration  the timeout
      * @throws Exception the exception
      */
-    protected void wait(final Callable<Boolean> callable, final long timeout) throws Exception {
-        long duration = 0;
+    protected void wait(final Callable<Boolean> callable, final long duration) throws Exception {
+        long remaining = duration;
 
         do {
             sleep(50);
-            duration += 50;
-        } while (!Boolean.TRUE.equals(callable.call()) && duration < timeout);
+            remaining -= 50;
+        } while (!Boolean.TRUE.equals(callable.call()) && remaining > 0);
     }
 }

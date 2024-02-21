@@ -123,20 +123,29 @@ public class FileCache {
 
         try {
             Content content = enabled ? contentCache.getIfPresent(path) : null;
-
-            if (content != null && content.getModificationDate() < Files.getLastModifiedTime(path).toMillis()) {
+            long lastModifiedTime = Files.getLastModifiedTime(path).toMillis();
+            
+            if (LOGGER.isDebugEnabled() && content != null) {
+                LOGGER.debug("Modification dates: {} < {}",  String.valueOf(content.getModificationDate()),  String.valueOf(lastModifiedTime));
+            }
+            
+            if (content != null && content.getModificationDate() < lastModifiedTime) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Content modified since : {}, reloading", new Date(content.getModificationDate()));
+                    LOGGER.debug("Content modified since : {}, reloading: {}", new Date(content.getModificationDate()), path);
                 }
 
                 content = null;
             }
 
             if (content == null) {
-                content = new Content(Files.readAllBytes(path), Files.getLastModifiedTime(path).toMillis());
+                content = new Content(Files.readAllBytes(path), lastModifiedTime);
 
                 if (enabled) {
                     contentCache.put(path, content);
+                }
+                
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Content size : {}", String.valueOf(content.getData().length));
                 }
             }
 

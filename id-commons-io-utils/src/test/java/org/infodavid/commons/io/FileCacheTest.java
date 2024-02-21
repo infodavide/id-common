@@ -9,12 +9,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 
 import org.infodavid.commons.test.TestCase;
 import org.infodavid.commons.utility.ProcessingDuration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * The Class FileCacheTest.
@@ -36,7 +38,8 @@ class FileCacheTest extends TestCase {
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(final TestInfo info) throws Exception {
+        super.setUp(info);
         cache.invalidate();
         resource = Files.createTempFile(getClass().getSimpleName() + '-', ".tmp");
 
@@ -94,21 +97,21 @@ class FileCacheTest extends TestCase {
         final ProcessingDuration<byte[]> counter = new ProcessingDuration<>(() -> cache.getData(resource));
         final byte[] result1 = counter.run();
         final long duration1 = counter.getDuration();
-
         System.out.println("duration1: " + duration1); // NOSONAR
 
         assertNotNull(result1, "Result is null");
         assertEquals(resourceLength, result1.length, "Result length is wrong");
         assertEquals(1, cache.getSize(), "Cache size is wrong");
 
+        sleep(250);
         final String text = String.valueOf(System.currentTimeMillis());
-        Files.writeString(resource, text, StandardCharsets.UTF_8);
-        sleep(200);
+        Files.writeString(resource, text, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+        sleep(250);
 
         final byte[] result2 = counter.run();
         final long duration2 = counter.getDuration();
 
-        System.out.println("duration3: " + duration2); // NOSONAR
+        System.out.println("duration2: " + duration2); // NOSONAR
 
         assertNotNull(result2, "Result is null");
         assertEquals(text.length(), result2.length, "Result length is wrong");
