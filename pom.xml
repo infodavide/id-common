@@ -12,7 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<derby.version>10.16.1.1</derby.version>
+		<derby.version>10.17.1.0</derby.version>
 		<hibernate.version>6.3.1.Final</hibernate.version>
 		<jackson.version>2.15.3</jackson.version>
 		<jna.version>5.13.0</jna.version>
